@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Portal v11 — Multi-Stage Spotify Visualizer & Lyrics</title>
+  <title>Portal v12 — 8-Stage Spotify Visualizer & Lyrics</title>
   <script src="https://sdk.scdn.co/spotify-player.js"></script>
   <style>
     :root {
@@ -17,7 +17,7 @@
       --c1: #38bdf8;
       --c2: #a855f7;
       --c3: #1ed760;
-      --stage-glow: rgba(56, 189, 248, 0.16);
+      --stage-glow: rgba(56, 189, 248, 0.18);
       --contrast-boost: 1;
     }
 
@@ -187,23 +187,26 @@
       max-width: 680px;
       width: 100%;
       margin: 0 auto;
-      padding: 14px 20px 24px;
+      padding: 12px 16px 20px;
     }
 
+    /* Single-row Compact Top Bar */
     .top-bar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 6px;
+      gap: 4px;
       z-index: 6;
+      flex-wrap: nowrap;
+      min-width: 0;
     }
 
     .top-actions {
       display: flex;
       align-items: center;
-      gap: 5px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
+      gap: 4px;
+      flex-wrap: nowrap;
+      flex-shrink: 0;
     }
 
     .icon-btn {
@@ -211,15 +214,16 @@
       backdrop-filter: blur(12px);
       border: 1px solid var(--border);
       color: #fff;
-      width: 34px;
-      height: 34px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
-      font-size: 0.85rem;
+      font-size: 0.78rem;
       font-weight: 700;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
+      flex-shrink: 0;
       transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.25s;
     }
 
@@ -227,22 +231,24 @@
       background: rgba(30, 215, 96, 0.22);
       border-color: var(--accent);
       color: var(--accent);
-      box-shadow: 0 0 12px rgba(30, 215, 96, 0.28);
+      box-shadow: 0 0 10px rgba(30, 215, 96, 0.28);
     }
 
     .status-pill {
-      font-size: 0.72rem;
+      font-size: 0.68rem;
       color: var(--muted);
       background: var(--surface);
       backdrop-filter: blur(12px);
-      padding: 6px 10px;
+      padding: 5px 9px;
       border-radius: 999px;
       border: 1px solid var(--border);
-      max-width: 34%;
+      flex: 1;
+      min-width: 0;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       cursor: pointer;
+      margin: 0 2px;
     }
 
     /* Multi-Screen Center Stage */
@@ -253,6 +259,7 @@
       min-height: 0;
       position: relative;
       touch-action: pan-y;
+      margin: 6px 0 2px;
     }
 
     .stage-view {
@@ -263,7 +270,7 @@
       justify-content: center;
       min-height: 0;
       width: 100%;
-      animation: viewFadeIn 0.28s ease;
+      animation: viewFadeIn 0.26s ease;
     }
 
     .stage-view.active {
@@ -271,19 +278,29 @@
     }
 
     @keyframes viewFadeIn {
-      from { opacity: 0; transform: scale(0.97); }
+      from { opacity: 0; transform: scale(0.975); }
       to { opacity: 1; transform: scale(1); }
     }
 
-    /* Scrollable Stage Switcher Pills */
+    /* Option B: Full-Width Snap Carousel Strip with Edge Fade */
+    .stage-carousel-wrap {
+      position: relative;
+      width: 100%;
+      margin: 4px 0 8px;
+      z-index: 6;
+      mask-image: linear-gradient(to right, transparent 0%, black 7%, black 93%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 7%, black 93%, transparent 100%);
+    }
+
     .stage-switcher {
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 6px;
-      padding: 6px 0 8px;
-      z-index: 6;
+      justify-content: flex-start;
+      gap: 7px;
+      padding: 4px 22px;
       overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
       scrollbar-width: none;
     }
 
@@ -293,16 +310,18 @@
 
     .stage-pill {
       background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.11);
       color: var(--muted);
-      font-size: 0.65rem;
+      font-size: 0.66rem;
       font-weight: 700;
       letter-spacing: 0.05em;
       text-transform: uppercase;
-      padding: 4px 9px;
+      padding: 5px 11px;
       border-radius: 999px;
       cursor: pointer;
       white-space: nowrap;
+      flex-shrink: 0;
+      scroll-snap-align: center;
       transition: all 0.22s ease;
     }
 
@@ -313,34 +332,35 @@
       box-shadow: 0 2px 14px var(--stage-glow);
     }
 
-    /* VIEW 0: Fluid Sphere Equalizer */
+    /* VIEW 0: Fluid Sphere Equalizer (Height-Safe Sizing) */
     .single-lyric-wrap {
       width: 100%;
-      min-height: 62px;
+      min-height: 46px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       text-align: center;
-      padding: 0 12px;
-      margin-bottom: 6px;
+      padding: 0 10px;
+      margin-bottom: 4px;
       z-index: 6;
+      flex-shrink: 0;
     }
 
     #lyric-source-tag {
-      font-size: 0.65rem;
+      font-size: 0.62rem;
       text-transform: uppercase;
       letter-spacing: 0.08em;
       color: var(--accent);
-      margin-bottom: 4px;
+      margin-bottom: 2px;
       opacity: 0.85;
       display: none;
     }
 
     #active-lyric {
-      font-size: clamp(1.12rem, 4.3vw, 1.5rem);
+      font-size: clamp(1.05rem, 4vw, 1.4rem);
       font-weight: 700;
-      line-height: 1.35;
+      line-height: 1.3;
       letter-spacing: -0.01em;
       color: #ffffff;
       text-shadow: 0 4px 24px rgba(0, 0, 0, 0.65);
@@ -350,22 +370,23 @@
     #active-lyric.dim {
       color: var(--muted);
       font-weight: 500;
-      font-size: 0.96rem;
+      font-size: 0.92rem;
     }
 
     #active-lyric.swap {
       opacity: 0;
-      transform: translateY(6px) scale(0.98);
+      transform: translateY(5px) scale(0.98);
     }
 
     .sphere-wrap {
       position: relative;
-      width: min(74vw, 310px);
-      height: min(74vw, 310px);
+      width: min(64vw, 39dvh, 265px);
+      height: min(64vw, 39dvh, 265px);
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
+      flex-shrink: 0;
     }
 
     #sphere-canvas {
@@ -376,14 +397,14 @@
 
     .eq-badge {
       position: absolute;
-      bottom: 4px;
-      font-size: 0.68rem;
+      bottom: 2px;
+      font-size: 0.64rem;
       letter-spacing: 0.06em;
       text-transform: uppercase;
       color: var(--muted);
-      background: rgba(0, 0, 0, 0.42);
+      background: rgba(0, 0, 0, 0.48);
       border: 1px solid rgba(255, 255, 255, 0.1);
-      padding: 3px 10px;
+      padding: 3px 9px;
       border-radius: 999px;
       pointer-events: none;
     }
@@ -508,12 +529,13 @@
       transition: all 0.3s ease;
     }
 
-    /* VIEW 3: Codestyle Terminal Stage */
+    /* VIEW 3: Codestyle Terminal Stage (<wbr> clean dot-boundary wrapping) */
     .code-terminal {
       width: 100%;
       max-width: 100%;
       max-height: 100%;
       overflow-y: auto;
+      overflow-x: hidden;
       background: rgba(8, 10, 16, 0.88);
       backdrop-filter: blur(22px);
       border: 1px solid rgba(255, 255, 255, 0.22);
@@ -591,7 +613,7 @@
       min-width: 0;
       white-space: normal;
       word-break: normal;
-      overflow-wrap: normal;
+      overflow-wrap: break-word;
     }
 
     .code-num {
@@ -618,40 +640,55 @@
       to { visibility: hidden; }
     }
 
-    /* VIEW 4: Constellation Star-Node Stage */
-    .constellation-wrap {
+    /* VIEW 4, 5, 6, 7: Canvas Visualizers */
+    .canvas-stage-wrap {
       position: relative;
       width: 100%;
       height: 100%;
       border-radius: 22px;
       overflow: hidden;
-      background: radial-gradient(circle at 50% 50%, rgba(16, 20, 34, 0.55), rgba(5, 6, 10, 0.82));
+      background: radial-gradient(circle at 50% 50%, rgba(16, 20, 34, 0.55), rgba(5, 6, 10, 0.86));
       border: 1px solid rgba(255, 255, 255, 0.1);
       box-shadow: 0 0 36px var(--stage-glow);
     }
 
-    #constellation-canvas {
+    .stage-canvas {
       width: 100%;
       height: 100%;
       display: block;
+    }
+
+    .canvas-lyric-overlay {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      right: 16px;
+      text-align: center;
+      font-size: clamp(0.98rem, 3.8vw, 1.25rem);
+      font-weight: 700;
+      color: #ffffff;
+      text-shadow: 0 2px 16px rgba(0, 0, 0, 0.9), 0 0 20px var(--stage-glow);
+      pointer-events: none;
+      line-height: 1.3;
     }
 
     /* Bottom Track Info + Controls */
     .bottom-dock {
       width: 100%;
       z-index: 6;
+      flex-shrink: 0;
     }
 
     .now-playing-compact {
       display: flex;
       align-items: center;
       gap: 12px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
     #album-art {
-      width: 50px;
-      height: 50px;
+      width: 48px;
+      height: 48px;
       border-radius: 12px;
       object-fit: cover;
       background: var(--surface);
@@ -665,7 +702,7 @@
     }
 
     #track-title {
-      font-size: 1.05rem;
+      font-size: 1.02rem;
       font-weight: 700;
       white-space: nowrap;
       overflow: hidden;
@@ -674,7 +711,7 @@
     }
 
     #track-artist {
-      font-size: 0.84rem;
+      font-size: 0.82rem;
       color: var(--muted);
       white-space: nowrap;
       overflow: hidden;
@@ -684,7 +721,7 @@
     /* Thumb-friendly Interactive Scrubber */
     .progress-bar {
       width: 100%;
-      height: 24px;
+      height: 22px;
       display: flex;
       align-items: center;
       margin-bottom: 2px;
@@ -726,9 +763,9 @@
     .time-row {
       display: flex;
       justify-content: space-between;
-      font-size: 0.74rem;
+      font-size: 0.72rem;
       color: var(--muted);
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .transport {
@@ -742,19 +779,19 @@
       background: none;
       border: none;
       color: #fff;
-      font-size: 1.45rem;
+      font-size: 1.4rem;
       cursor: pointer;
-      padding: 8px;
+      padding: 6px;
       opacity: 0.9;
     }
 
     .play-btn {
-      width: 58px;
-      height: 58px;
+      width: 54px;
+      height: 54px;
       border-radius: 50%;
       background: #fff;
       color: #000;
-      font-size: 1.45rem;
+      font-size: 1.4rem;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -900,8 +937,8 @@
   <div id="backdrop-overlay"></div>
 
   <div id="setup-screen">
-    <div class="brand">Portal v11</div>
-    <div class="subtitle">5-mode fluid sphere equalizer, Codestyle, Constellation & kinetic lyric stages.</div>
+    <div class="brand">Portal v12</div>
+    <div class="subtitle">8-mode fluid sphere equalizer, Singularity, Spectrum Bars, Aurora, Waveform & lyric stages.</div>
 
     <div class="card">
       <span class="label">1. Your Redirect URI (Add in Spotify Dashboard)</span>
@@ -920,7 +957,7 @@
       <ol class="steps">
         <li>Add the green URL above under <strong>Redirect URIs</strong> in your Spotify Developer Dashboard.</li>
         <li>Add your Spotify email under <strong>Settings → User Management</strong> (Premium required for direct browser playback).</li>
-        <li>Swipe or tap the stage pills to switch between <strong>Orb EQ</strong>, <strong>Stream</strong>, <strong>Sonic</strong>, <strong>Codestyle</strong>, and <strong>Constellation</strong>.</li>
+        <li>Swipe the stage or scroll the carousel strip to switch between <strong>Orb EQ</strong>, <strong>Stream</strong>, <strong>Sonic</strong>, <strong>Codestyle</strong>, <strong>Constellation</strong>, <strong>Spectrum Bars</strong>, <strong>Aurora</strong>, and <strong>Waveform</strong>.</li>
       </ol>
     </div>
   </div>
@@ -930,7 +967,7 @@
       <button class="icon-btn" onclick="openDrawer('playlists')" title="Library, Recent & Search">☰</button>
       <div class="status-pill" id="device-status" onclick="openDrawer('devices')" title="Tap to switch playback device">Connecting...</div>
       <div class="top-actions">
-        <button class="icon-btn" id="cc-btn" onclick="toggleAutoCC()" title="Auto-CC Live Captions" style="font-size:0.7rem;">CC</button>
+        <button class="icon-btn" id="cc-btn" onclick="toggleAutoCC()" title="Auto-CC Live Captions" style="font-size:0.65rem;">CC</button>
         <button class="icon-btn" id="mic-btn" onclick="toggleMicEqualizer()" title="Live Mic Audio Equalizer">🎙</button>
         <button class="icon-btn" id="wakelock-btn" onclick="toggleWakeLock()" title="Keep Screen Awake">☀</button>
         <button class="icon-btn" id="cycle-btn" onclick="toggleStageAutoCycle()" title="Auto-Cycle Stages Between Tracks">⟳</button>
@@ -939,7 +976,7 @@
       </div>
     </div>
 
-    <!-- 5-Screen Swipeable Visualizer & Lyric Stage -->
+    <!-- 8-Screen Swipeable Visualizer & Lyric Stage -->
     <div class="stage-container" id="stage-container">
       <!-- Screen 0: Fluid Sphere Equalizer -->
       <div class="stage-view active" id="view-orb">
@@ -968,7 +1005,7 @@
           <div class="sonic-text-wrap">
             <div id="sonic-prev"></div>
             <div id="sonic-current">Portal Sonic Stage</div>
-            <div id="sonic-next">Swipe or tap pills below to switch views</div>
+            <div id="sonic-next">Swipe or scroll the carousel below</div>
           </div>
         </div>
       </div>
@@ -983,27 +1020,56 @@
           <div class="code-body" id="code-body">
             <div class="code-line-row active">
               <span class="code-num">01</span>
-              <span class="code-text">awaiting.audio.stream()<span class="code-cursor"></span></span>
+              <span class="code-text">awaiting.<wbr>audio.<wbr>stream()<span class="code-cursor"></span></span>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Screen 4: Constellation Star-Node Lyrics + Accretion Black Hole Fallback -->
+      <!-- Screen 4: Constellation Star-Node Lyrics + Accretion Black Hole -->
       <div class="stage-view" id="view-constellation">
-        <div class="constellation-wrap" onclick="togglePlay()">
-          <canvas id="constellation-canvas"></canvas>
+        <div class="canvas-stage-wrap" onclick="togglePlay()">
+          <canvas class="stage-canvas" id="constellation-canvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Screen 5: Spectrum Bars Visualizer -->
+      <div class="stage-view" id="view-bars">
+        <div class="canvas-stage-wrap" onclick="togglePlay()">
+          <canvas class="stage-canvas" id="bars-canvas"></canvas>
+          <div class="canvas-lyric-overlay" id="bars-lyric">Play a song to pulse the spectrum</div>
+        </div>
+      </div>
+
+      <!-- Screen 6: Aurora Borealis Ribbon Visualizer -->
+      <div class="stage-view" id="view-aurora">
+        <div class="canvas-stage-wrap" onclick="togglePlay()">
+          <canvas class="stage-canvas" id="aurora-canvas"></canvas>
+          <div class="canvas-lyric-overlay" id="aurora-lyric">Aurora lyric drift</div>
+        </div>
+      </div>
+
+      <!-- Screen 7: Oscilloscope Waveform Visualizer -->
+      <div class="stage-view" id="view-waveform">
+        <div class="canvas-stage-wrap" onclick="togglePlay()">
+          <canvas class="stage-canvas" id="waveform-canvas"></canvas>
+          <div class="canvas-lyric-overlay" id="waveform-lyric">Harmonic waveform trace</div>
         </div>
       </div>
     </div>
 
-    <!-- Stage Switcher Pills -->
-    <div class="stage-switcher">
-      <button class="stage-pill active" id="pill-0" onclick="setStage(0)">Orb EQ</button>
-      <button class="stage-pill" id="pill-1" onclick="setStage(1)">Stream</button>
-      <button class="stage-pill" id="pill-2" onclick="setStage(2)">Sonic</button>
-      <button class="stage-pill" id="pill-3" onclick="setStage(3)">Codestyle</button>
-      <button class="stage-pill" id="pill-4" onclick="setStage(4)">Constellation</button>
+    <!-- Option B: Full-Width Snap Carousel Strip with Edge Fade -->
+    <div class="stage-carousel-wrap">
+      <div class="stage-switcher" id="stage-switcher">
+        <button class="stage-pill active" id="pill-0" onclick="setStage(0)">Orb EQ</button>
+        <button class="stage-pill" id="pill-1" onclick="setStage(1)">Stream</button>
+        <button class="stage-pill" id="pill-2" onclick="setStage(2)">Sonic</button>
+        <button class="stage-pill" id="pill-3" onclick="setStage(3)">Codestyle</button>
+        <button class="stage-pill" id="pill-4" onclick="setStage(4)">Constellation</button>
+        <button class="stage-pill" id="pill-5" onclick="setStage(5)">Spectrum Bars</button>
+        <button class="stage-pill" id="pill-6" onclick="setStage(6)">Aurora</button>
+        <button class="stage-pill" id="pill-7" onclick="setStage(7)">Waveform</button>
+      </div>
     </div>
 
     <div class="bottom-dock">
@@ -1083,9 +1149,9 @@
     let progressTimer = null;
     let searchTimeout = null;
 
-    // 5-screen stage state (0=Orb EQ, 1=Stream, 2=Sonic, 3=Codestyle, 4=Constellation)
+    // 8-screen stage state
     let currentStage = 0;
-    const TOTAL_STAGES = 5;
+    const TOTAL_STAGES = 8;
 
     // Auto-cycle stages between tracks & Color Mood
     let autoCycleStages = false;
@@ -1102,11 +1168,11 @@
     // Local Recent / Quick-Play Tracks
     let recentTracks = JSON.parse(localStorage.getItem("portal_recent_tracks") || "[]");
 
-    // Constellation star nodes (full-line reveal, all words included) + Warped Accretion-Disk Black Hole fallback
+    // Constellation star nodes + Warped Accretion-Disk Black Hole fallback
     let constellationNodes = [];
     let constellationHasLyrics = false;
     let shockwaveRing = 0;
-    let constellationBgStars = Array.from({ length: 42 }, () => ({
+    let constellationBgStars = Array.from({ length: 48 }, () => ({
       x: Math.random(),
       y: Math.random(),
       r: 0.6 + Math.random() * 1.4,
@@ -1141,6 +1207,7 @@
     // 36-band equalizer spectrum + Live Mic Web Audio Analyser
     const EQ_BANDS = 36;
     const eqSpectrum = new Float32Array(EQ_BANDS);
+    const barPeaks = new Float32Array(EQ_BANDS);
     let micActive = false;
     let audioCtx = null;
     let analyserNode = null;
@@ -1157,15 +1224,12 @@
       };
 
       if (colorMoodMode === 1) {
-        // Neon Vivid
         targetPalette = rawAlbumColors.map(c => boost(c, 1.45, 1.15));
         document.documentElement.style.setProperty("--contrast-boost", "1.22");
       } else if (colorMoodMode === 2) {
-        // Deep Moody
         targetPalette = rawAlbumColors.map(c => boost(c, 0.92, 0.72));
         document.documentElement.style.setProperty("--contrast-boost", "0.92");
       } else {
-        // Balanced
         targetPalette = rawAlbumColors.map(c => [...c]);
         document.documentElement.style.setProperty("--contrast-boost", "1");
       }
@@ -1234,13 +1298,28 @@
       } catch {}
     }
 
-    // Stage Switcher + Horizontal Swipe Gesture
+    // Stage Switcher + Auto-Center Carousel Pill + Horizontal Swipe Gesture
     function setStage(idx) {
       currentStage = (idx + TOTAL_STAGES) % TOTAL_STAGES;
-      const views = ["view-orb", "view-stream", "view-sonic", "view-code", "view-constellation"];
+      const views = [
+        "view-orb",
+        "view-stream",
+        "view-sonic",
+        "view-code",
+        "view-constellation",
+        "view-bars",
+        "view-aurora",
+        "view-waveform"
+      ];
       views.forEach((id, i) => {
         document.getElementById(id).classList.toggle("active", i === currentStage);
-        document.getElementById("pill-" + i).classList.toggle("active", i === currentStage);
+        const pill = document.getElementById("pill-" + i);
+        if (pill) {
+          pill.classList.toggle("active", i === currentStage);
+          if (i === currentStage) {
+            pill.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+          }
+        }
       });
 
       if (currentStage === 1) {
@@ -1537,6 +1616,9 @@
           setSourceTag("LIVE AUTO-CC");
           setSingleLyric(displayLine, false);
           document.getElementById("sonic-current").textContent = displayLine;
+          document.getElementById("bars-lyric").textContent = displayLine;
+          document.getElementById("aurora-lyric").textContent = displayLine;
+          document.getElementById("waveform-lyric").textContent = displayLine;
           document.getElementById("kinetic-lyrics-box").innerHTML = `<div class="k-line active">${escapeHtml(displayLine)}</div>`;
           updateCodestyleStage(["live.cc.stream()", displayLine], 1);
           buildConstellationForLine(displayLine);
@@ -1650,6 +1732,7 @@
           const bin = Math.min(freqDataArray.length - 1, Math.floor(Math.pow(i / EQ_BANDS, 1.45) * (freqDataArray.length * 0.78)));
           const val = freqDataArray[bin] / 255;
           eqSpectrum[i] += (val - eqSpectrum[i]) * 0.35;
+          barPeaks[i] = Math.max(eqSpectrum[i], barPeaks[i] - 0.008);
         }
         return;
       }
@@ -1657,6 +1740,7 @@
       if (!isPlaying) {
         for (let i = 0; i < EQ_BANDS; i++) {
           eqSpectrum[i] += (0.04 - eqSpectrum[i]) * 0.12;
+          barPeaks[i] = Math.max(eqSpectrum[i], barPeaks[i] - 0.006);
         }
         return;
       }
@@ -1686,6 +1770,7 @@
           const bassBoost = i < 10 ? kick * 0.45 : 0;
           const target = Math.min(1, loudNorm * (0.35 + pitchVal * 0.65) + bassBoost);
           eqSpectrum[i] += (target - eqSpectrum[i]) * 0.25;
+          barPeaks[i] = Math.max(eqSpectrum[i], barPeaks[i] - 0.008);
         }
       } else {
         for (let i = 0; i < EQ_BANDS; i++) {
@@ -1695,11 +1780,12 @@
           const high = norm * (Math.sin(t * 7.5 + i * 1.7) * 0.5 + 0.5) * 0.55;
           const target = Math.min(1, (bass + mid * trackEnergy + high) * 0.85);
           eqSpectrum[i] += (target - eqSpectrum[i]) * 0.22;
+          barPeaks[i] = Math.max(eqSpectrum[i], barPeaks[i] - 0.008);
         }
       }
     }
 
-    // Build Constellation Star Nodes (full line kept intact, no word cap, multi-row spread so nothing clips)
+    // Build Constellation Star Nodes (Varied organic shapes per lyric line — no repetitive Z pattern!)
     function buildConstellationForLine(lineText) {
       const clean = (lineText || "").trim();
       if (!clean || clean === "♪" || clean === "•••") {
@@ -1717,25 +1803,58 @@
 
       constellationHasLyrics = true;
       const count = words.length;
-      const perRow = count > 8 ? 5 : count > 4 ? 4 : count;
-      const rows = Math.max(1, Math.ceil(count / perRow));
+
+      // Deterministic hash from line text so each line picks a distinct constellation shape
+      let hash = 0;
+      for (let i = 0; i < clean.length; i++) {
+        hash = ((hash << 5) - hash + clean.charCodeAt(i)) | 0;
+      }
+      const pattern = Math.abs(hash) % 5; // 0=Arc, 1=Spiral/Orbit, 2=Diamond/Crown, 3=Diagonal Cascade, 4=Boustrophedon Serpentine
 
       constellationNodes = words.map((word, idx) => {
-        const row = Math.floor(idx / perRow);
-        const col = idx % perRow;
-        const itemsInThisRow = row === rows - 1 ? count - row * perRow : perRow;
-        const hProg = itemsInThisRow === 1 ? 0.5 : col / (itemsInThisRow - 1);
-        const vProg = rows === 1 ? 0.5 : row / (rows - 1);
+        const prog = count === 1 ? 0.5 : idx / (count - 1);
+        let nx = 0.5;
+        let ny = 0.5;
 
-        const nx = 0.16 + hProg * 0.68 + Math.sin(idx * 2.1 + clean.length) * 0.025;
-        const ny = (rows === 1 ? 0.42 : 0.22 + vProg * 0.54) + Math.cos(idx * 1.7 + clean.length) * 0.03;
+        if (pattern === 0) {
+          // Sweeping Celestial Arc
+          const angle = Math.PI * (0.14 + prog * 0.72);
+          nx = 0.5 - Math.cos(angle) * 0.35;
+          ny = 0.64 - Math.sin(angle) * 0.38;
+        } else if (pattern === 1) {
+          // Expanding Spiral / Orbit
+          const angle = -Math.PI * 0.75 + prog * Math.PI * 1.65;
+          const rad = 0.14 + prog * 0.24;
+          nx = 0.5 + Math.cos(angle) * rad * 1.15;
+          ny = 0.48 + Math.sin(angle) * rad * 1.05;
+        } else if (pattern === 2) {
+          // Crown / Diamond Crest
+          const midDist = 1 - Math.abs(prog - 0.5) * 2;
+          nx = 0.16 + prog * 0.68;
+          ny = 0.62 - midDist * 0.36 + (idx % 2 === 0 ? -0.04 : 0.04);
+        } else if (pattern === 3) {
+          // Diagonal Rising Star Stream
+          nx = 0.17 + prog * 0.66;
+          ny = 0.72 - prog * 0.46 + Math.sin(prog * Math.PI * 2) * 0.07;
+        } else {
+          // Smooth Serpentine (no sharp Z jump)
+          const perRow = count > 8 ? 5 : 4;
+          const rows = Math.max(1, Math.ceil(count / perRow));
+          const row = Math.floor(idx / perRow);
+          const col = idx % perRow;
+          const itemsInRow = row === rows - 1 ? count - row * perRow : perRow;
+          const hProg = itemsInRow === 1 ? 0.5 : col / (itemsInRow - 1);
+          const dirProg = row % 2 === 1 ? 1 - hProg : hProg;
+          nx = 0.18 + dirProg * 0.64;
+          ny = rows === 1 ? 0.48 : 0.25 + (row / (rows - 1)) * 0.48;
+        }
 
         return {
           word,
           nx: Math.max(0.14, Math.min(0.86, nx)),
-          ny: Math.max(0.16, Math.min(0.84, ny)),
+          ny: Math.max(0.16, Math.min(0.82, ny)),
           spawnTime: performance.now(),
-          delay: idx * 55
+          delay: idx * 50
         };
       });
     }
@@ -1745,7 +1864,7 @@
       constellationNodes = [];
     }
 
-    // Visual Render Loop for Orb EQ (View 0), Wave Ribbons (View 2) & Constellation / Warped Black Hole EQ (View 4)
+    // Visual Render Loop for all Canvas Stages
     function initVisualizers() {
       const orbCanvas = document.getElementById("sphere-canvas");
       const orbCtx = orbCanvas.getContext("2d");
@@ -1753,6 +1872,12 @@
       const waveCtx = waveCanvas.getContext("2d");
       const starCanvas = document.getElementById("constellation-canvas");
       const starCtx = starCanvas.getContext("2d");
+      const barsCanvas = document.getElementById("bars-canvas");
+      const barsCtx = barsCanvas.getContext("2d");
+      const auroraCanvas = document.getElementById("aurora-canvas");
+      const auroraCtx = auroraCanvas.getContext("2d");
+      const wfCanvas = document.getElementById("waveform-canvas");
+      const wfCtx = wfCanvas.getContext("2d");
 
       let t = 0;
       let smoothBass = 0.15;
@@ -1764,8 +1889,12 @@
         [
           [orbCanvas, orbCtx],
           [waveCanvas, waveCtx],
-          [starCanvas, starCtx]
+          [starCanvas, starCtx],
+          [barsCanvas, barsCtx],
+          [auroraCanvas, auroraCtx],
+          [wfCanvas, wfCtx]
         ].forEach(([c, ctx]) => {
+          if (!c) return;
           const r = c.getBoundingClientRect();
           if (r.width && r.height) {
             c.width = r.width * dpr;
@@ -1800,7 +1929,6 @@
         smoothMid = lerp(smoothMid, mSum / 12, 0.22);
         smoothHigh = lerp(smoothHigh, hSum / 12, 0.22);
 
-        // Trigger BPM/bass shockwave ring on strong bass hits
         if (smoothBass > 0.56 && smoothBass - prevBass > 0.05 && shockwaveRing < 0.15) {
           shockwaveRing = 1.0;
         }
@@ -1811,18 +1939,18 @@
 
         const [c1, c2, c3] = spherePalette.map(rgb => rgb.map(v => Math.round(v)));
 
-        // View 0: Fluid Sphere Equalizer + BPM/Bass Shockwave
+        // View 0: Fluid Sphere Equalizer (Scaled cleanly so bottom never clips)
         if (currentStage === 0) {
           const w = orbCanvas.clientWidth;
           const h = orbCanvas.clientHeight;
           const cx = w / 2;
           const cy = h / 2;
-          const baseR = Math.min(w, h) * 0.31;
+          const baseR = Math.min(w, h) * 0.285;
 
           orbCtx.clearRect(0, 0, w, h);
 
           if (shockwaveRing > 0.01) {
-            const waveR = baseR * (1.1 + (1 - shockwaveRing) * 0.75);
+            const waveR = baseR * (1.08 + (1 - shockwaveRing) * 0.65);
             orbCtx.save();
             orbCtx.strokeStyle = `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, ${shockwaveRing * 0.55})`;
             orbCtx.lineWidth = 2.5 * shockwaveRing;
@@ -1832,13 +1960,13 @@
             orbCtx.restore();
           }
 
-          const glow = orbCtx.createRadialGradient(cx, cy, baseR * 0.2, cx, cy, baseR * (1.45 + smoothBass * 0.35));
+          const glow = orbCtx.createRadialGradient(cx, cy, baseR * 0.2, cx, cy, baseR * (1.42 + smoothBass * 0.32));
           glow.addColorStop(0, `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, 0.38)`);
           glow.addColorStop(0.55, `rgba(${c2[0]}, ${c2[1]}, ${c2[2]}, 0.18)`);
           glow.addColorStop(1, "rgba(0, 0, 0, 0)");
           orbCtx.fillStyle = glow;
           orbCtx.beginPath();
-          orbCtx.arc(cx, cy, baseR * 1.75, 0, Math.PI * 2);
+          orbCtx.arc(cx, cy, baseR * 1.65, 0, Math.PI * 2);
           orbCtx.fill();
 
           const totalBars = EQ_BANDS * 2;
@@ -1848,8 +1976,8 @@
             const bandIdx = i < EQ_BANDS ? i : totalBars - 1 - i;
             const amp = eqSpectrum[bandIdx];
             const angle = (i / totalBars) * Math.PI * 2 - Math.PI / 2;
-            const innerR = baseR * (1.06 + smoothBass * 0.14);
-            const barLen = 4 + amp * (baseR * 0.42);
+            const innerR = baseR * (1.05 + smoothBass * 0.12);
+            const barLen = 4 + amp * (baseR * 0.38);
             const x1 = cx + Math.cos(angle) * innerR;
             const y1 = cy + Math.sin(angle) * innerR;
             const x2 = cx + Math.cos(angle) * (innerR + barLen);
@@ -1857,7 +1985,7 @@
 
             const col = bandIdx < 12 ? c1 : bandIdx < 24 ? c2 : c3;
             orbCtx.strokeStyle = `rgba(${col[0]}, ${col[1]}, ${col[2]}, ${0.28 + amp * 0.68})`;
-            orbCtx.lineWidth = 2.6;
+            orbCtx.lineWidth = 2.5;
             orbCtx.beginPath();
             orbCtx.moveTo(x1, y1);
             orbCtx.lineTo(x2, y2);
@@ -1881,8 +2009,8 @@
               const angle = (i / pts) * Math.PI * 2;
               const n1 = Math.sin(angle * layer.freq1 + t * layer.speed + layer.phase);
               const n2 = Math.cos(angle * layer.freq2 - t * layer.speed * 1.3 + layer.phase);
-              const deform = (n1 * 0.6 + n2 * 0.4) * (6 + layer.band * 30);
-              const r = baseR * layer.scale + layer.band * 18 + deform;
+              const deform = (n1 * 0.6 + n2 * 0.4) * (5 + layer.band * 26);
+              const r = baseR * layer.scale + layer.band * 15 + deform;
               const x = cx + Math.cos(angle) * r;
               const y = cy + Math.sin(angle) * r;
               if (i === 0) orbCtx.moveTo(x, y);
@@ -1896,7 +2024,7 @@
               baseR * 0.1,
               cx,
               cy,
-              baseR * 1.25
+              baseR * 1.22
             );
             grad.addColorStop(0, `rgba(255, 255, 255, ${layer.alpha * 0.68})`);
             grad.addColorStop(0.45, `rgba(${layer.color[0]}, ${layer.color[1]}, ${layer.color[2]}, ${layer.alpha})`);
@@ -1960,13 +2088,12 @@
           waveCtx.restore();
         }
 
-        // View 4: Constellation Star-Node Lyrics OR Interstellar-style Warped Accretion-Disk Black Hole
+        // View 4: Constellation Star-Node Lyrics OR Interstellar-style Plasma Accretion Black Hole
         if (currentStage === 4) {
           const w = starCanvas.clientWidth;
           const h = starCanvas.clientHeight;
           starCtx.clearRect(0, 0, w, h);
 
-          // Twinkling starfield
           for (const s of constellationBgStars) {
             const alpha = 0.22 + 0.45 * (0.5 + 0.5 * Math.sin(t * 1.4 + s.twinkle));
             starCtx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
@@ -1976,107 +2103,126 @@
           }
 
           if (!constellationHasLyrics || !constellationNodes.length) {
-            // Interstellar-style warped accretion-disk black hole tinted to album colors + EQ pulse
             const cx = w / 2;
             const cy = h / 2;
-            const holeR = Math.min(w, h) * (0.15 + smoothBass * 0.032);
-            const diskRx = Math.min(w, h) * (0.44 + smoothBass * 0.06);
-            const diskRy = holeR * (0.44 + smoothMid * 0.14);
-            const tilt = -0.22 + Math.sin(t * 0.5) * 0.03;
+            const holeR = Math.min(w, h) * (0.145 + smoothBass * 0.025);
+            const diskRx = Math.min(w, h) * (0.45 + smoothBass * 0.05);
+            const diskRy = holeR * (0.38 + smoothMid * 0.12);
+            const tilt = -0.18 + Math.sin(t * 0.45) * 0.025;
 
             starCtx.save();
             starCtx.translate(cx, cy);
 
-            // Shockwave ripple on bass hits
-            if (shockwaveRing > 0.01) {
-              const swR = holeR * (1.2 + (1 - shockwaveRing) * 1.5);
-              starCtx.strokeStyle = `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, ${shockwaveRing * 0.5})`;
-              starCtx.lineWidth = 2 * shockwaveRing;
-              starCtx.beginPath();
-              starCtx.ellipse(0, 0, swR * 1.55, swR * 0.55, tilt, 0, Math.PI * 2);
-              starCtx.stroke();
-            }
-
-            // Gravitational lensing halo arching over top and bottom of event horizon
-            const haloGrad = starCtx.createRadialGradient(0, 0, holeR * 0.7, 0, 0, diskRx * 1.15);
-            haloGrad.addColorStop(0, `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, 0.0)`);
-            haloGrad.addColorStop(0.45, `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, ${0.28 + smoothBass * 0.25})`);
-            haloGrad.addColorStop(0.75, `rgba(${c2[0]}, ${c2[1]}, ${c2[2]}, ${0.14 + smoothMid * 0.15})`);
-            haloGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
-            starCtx.fillStyle = haloGrad;
+            // 1. Soft atmospheric nebula glow
+            const bgGlow = starCtx.createRadialGradient(0, 0, holeR * 0.8, 0, 0, diskRx * 1.25);
+            bgGlow.addColorStop(0, `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, 0.34)`);
+            bgGlow.addColorStop(0.45, `rgba(${c2[0]}, ${c2[1]}, ${c2[2]}, 0.18)`);
+            bgGlow.addColorStop(1, "rgba(0, 0, 0, 0)");
+            starCtx.fillStyle = bgGlow;
             starCtx.beginPath();
-            starCtx.arc(0, 0, diskRx * 1.18, 0, Math.PI * 2);
+            starCtx.arc(0, 0, diskRx * 1.25, 0, Math.PI * 2);
             starCtx.fill();
 
-            // Upper lensed arch over the black hole
-            starCtx.save();
-            starCtx.rotate(tilt);
-            for (let ring = 0; ring < 3; ring++) {
-              const bandIdx = (ring * 10 + Math.floor(t * 6)) % EQ_BANDS;
-              const amp = eqSpectrum[bandIdx];
-              const rScale = 1 + ring * 0.18 + amp * 0.12;
-              starCtx.strokeStyle = ring === 0
-                ? `rgba(255, 255, 255, ${0.75 + smoothBass * 0.25})`
-                : ring === 1
-                  ? `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, ${0.72 + amp * 0.28})`
-                  : `rgba(${c2[0]}, ${c2[1]}, ${c2[2]}, ${0.48 + amp * 0.3})`;
-              starCtx.lineWidth = (4.5 - ring) * (0.85 + smoothBass * 0.65);
-              starCtx.shadowColor = `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, 0.85)`;
-              starCtx.shadowBlur = 14 + smoothBass * 14;
-              starCtx.beginPath();
-              starCtx.ellipse(0, -holeR * 0.15, holeR * (1.15 * rScale), holeR * (1.42 * rScale), 0, Math.PI * 1.05, Math.PI * 1.95);
-              starCtx.stroke();
-            }
-            starCtx.restore();
-
-            // Pitch-black event horizon core
-            starCtx.fillStyle = "#020305";
-            starCtx.beginPath();
-            starCtx.arc(0, 0, holeR, 0, Math.PI * 2);
-            starCtx.fill();
-
-            // Tilted equatorial accretion disk cutting across with bright core & EQ ripples
             starCtx.save();
             starCtx.rotate(tilt);
             starCtx.globalCompositeOperation = "screen";
 
-            const diskGrad = starCtx.createLinearGradient(-diskRx, 0, diskRx, 0);
-            diskGrad.addColorStop(0, `rgba(${c2[0]}, ${c2[1]}, ${c2[2]}, 0.08)`);
-            diskGrad.addColorStop(0.25, `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, ${0.65 + smoothBass * 0.3})`);
-            diskGrad.addColorStop(0.5, `rgba(255, 255, 255, ${0.88 + smoothBass * 0.12})`);
-            diskGrad.addColorStop(0.75, `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, ${0.65 + smoothMid * 0.3})`);
-            diskGrad.addColorStop(1, `rgba(${c3[0]}, ${c3[1]}, ${c3[2]}, 0.08)`);
-
-            starCtx.strokeStyle = diskGrad;
-            starCtx.lineWidth = 6 + smoothBass * 10;
-            starCtx.shadowColor = `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, 0.9)`;
-            starCtx.shadowBlur = 18 + smoothBass * 16;
-
+            // 2. Upper warped gravitational lensing halo (soft filled plasma)
+            starCtx.save();
+            starCtx.scale(1.18, 1.38);
+            const topHalo = starCtx.createRadialGradient(0, -holeR * 0.12, holeR * 0.72, 0, -holeR * 0.12, holeR * 1.52);
+            topHalo.addColorStop(0, "rgba(0, 0, 0, 0)");
+            topHalo.addColorStop(0.32, `rgba(255, 255, 255, ${0.52 + smoothBass * 0.25})`);
+            topHalo.addColorStop(0.54, `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, ${0.55 + smoothBass * 0.25})`);
+            topHalo.addColorStop(0.78, `rgba(${c2[0]}, ${c2[1]}, ${c2[2]}, 0.24)`);
+            topHalo.addColorStop(1, "rgba(0, 0, 0, 0)");
+            starCtx.fillStyle = topHalo;
             starCtx.beginPath();
-            const steps = 64;
-            for (let i = 0; i <= steps; i++) {
-              const u = (i / steps) * 2 - 1; // -1 to 1
-              const bandIdx = Math.min(EQ_BANDS - 1, Math.floor(Math.abs(u) * (EQ_BANDS - 1)));
-              const amp = eqSpectrum[bandIdx];
-              const x = u * diskRx;
-              const warp = Math.sin(u * Math.PI * 2 + t * 2.2) * (2 + amp * 7);
-              const y = warp;
-              if (i === 0) starCtx.moveTo(x, y);
-              else starCtx.lineTo(x, y);
+            starCtx.arc(0, -holeR * 0.12, holeR * 1.55, Math.PI, Math.PI * 2);
+            starCtx.fill();
+            starCtx.restore();
+
+            // 3. Lower warped gravitational lensing under-arch
+            starCtx.save();
+            starCtx.scale(1.12, 1.22);
+            const botHalo = starCtx.createRadialGradient(0, holeR * 0.08, holeR * 0.74, 0, holeR * 0.08, holeR * 1.42);
+            botHalo.addColorStop(0, "rgba(0, 0, 0, 0)");
+            botHalo.addColorStop(0.35, `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, ${0.42 + smoothMid * 0.22})`);
+            botHalo.addColorStop(0.68, `rgba(${c2[0]}, ${c2[1]}, ${c2[2]}, 0.18)`);
+            botHalo.addColorStop(1, "rgba(0, 0, 0, 0)");
+            starCtx.fillStyle = botHalo;
+            starCtx.beginPath();
+            starCtx.arc(0, holeR * 0.08, holeR * 1.45, 0, Math.PI);
+            starCtx.fill();
+            starCtx.restore();
+
+            // 4. Back half of the equatorial accretion disk
+            starCtx.save();
+            starCtx.scale(1, diskRy / diskRx);
+            const backDisk = starCtx.createRadialGradient(0, 0, holeR * 0.85, 0, 0, diskRx);
+            backDisk.addColorStop(0, "rgba(255,255,255,0)");
+            backDisk.addColorStop(0.35, `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, 0.48)`);
+            backDisk.addColorStop(0.65, `rgba(${c2[0]}, ${c2[1]}, ${c2[2]}, 0.28)`);
+            backDisk.addColorStop(1, "rgba(0,0,0,0)");
+            starCtx.fillStyle = backDisk;
+            starCtx.beginPath();
+            starCtx.arc(0, 0, diskRx, Math.PI, Math.PI * 2);
+            starCtx.fill();
+            starCtx.restore();
+            starCtx.restore();
+
+            // 5. Pitch-black Event Horizon with bright photon ring
+            starCtx.fillStyle = "#020306";
+            starCtx.beginPath();
+            starCtx.arc(0, 0, holeR, 0, Math.PI * 2);
+            starCtx.fill();
+
+            starCtx.strokeStyle = `rgba(255, 255, 255, ${0.42 + smoothBass * 0.35})`;
+            starCtx.lineWidth = 1.6;
+            starCtx.beginPath();
+            starCtx.arc(0, 0, holeR + 0.5, 0, Math.PI * 2);
+            starCtx.stroke();
+
+            // 6. Foreground sweeping accretion plasma blade cutting across the black hole
+            starCtx.save();
+            starCtx.rotate(tilt);
+            starCtx.globalCompositeOperation = "screen";
+
+            for (let pass = 0; pass < 3; pass++) {
+              const rx = diskRx * (1 - pass * 0.14);
+              const ry = diskRy * (0.55 - pass * 0.12);
+              const bladeGrad = starCtx.createLinearGradient(-rx, 0, rx, 0);
+              bladeGrad.addColorStop(0, "rgba(0,0,0,0)");
+              bladeGrad.addColorStop(0.22, `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, ${0.38 + smoothBass * 0.25})`);
+              bladeGrad.addColorStop(0.5, `rgba(255, 255, 255, ${pass === 2 ? 0.92 : 0.55})`);
+              bladeGrad.addColorStop(0.78, `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, ${0.38 + smoothMid * 0.25})`);
+              bladeGrad.addColorStop(1, "rgba(0,0,0,0)");
+
+              starCtx.fillStyle = bladeGrad;
+              starCtx.beginPath();
+              starCtx.ellipse(0, holeR * 0.08, rx, Math.max(3, ry + smoothBass * 6), 0, 0, Math.PI * 2);
+              starCtx.fill();
             }
-            starCtx.stroke();
 
-            // Lower warped ring curve beneath the horizon
-            starCtx.strokeStyle = `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, ${0.52 + smoothMid * 0.35})`;
-            starCtx.lineWidth = 2.6 + smoothBass * 3;
-            starCtx.beginPath();
-            starCtx.ellipse(0, holeR * 0.12, diskRx * 0.72, diskRy * 1.15, 0, 0.1, Math.PI - 0.1);
-            starCtx.stroke();
+            // Swirling plasma wisps along the accretion plane
+            for (let k = 0; k < 5; k++) {
+              const phase = t * (1.2 + k * 0.25) + k * 1.3;
+              const streakX = Math.sin(phase) * (diskRx * 0.48);
+              const streakW = diskRx * (0.28 + eqSpectrum[k * 5] * 0.22);
+              const streakGrad = starCtx.createLinearGradient(streakX - streakW, 0, streakX + streakW, 0);
+              streakGrad.addColorStop(0, "rgba(255,255,255,0)");
+              streakGrad.addColorStop(0.5, `rgba(255, 255, 255, ${0.35 + eqSpectrum[k * 5] * 0.45})`);
+              streakGrad.addColorStop(1, "rgba(255,255,255,0)");
+              starCtx.fillStyle = streakGrad;
+              starCtx.beginPath();
+              starCtx.ellipse(streakX, holeR * 0.08 + (k - 2) * 2.2, streakW, 2.2 + smoothBass * 2, 0, 0, Math.PI * 2);
+              starCtx.fill();
+            }
 
             starCtx.restore();
             starCtx.restore();
           } else {
-            // Full-line Constellation star nodes (all words preserved, auto-sized to prevent clipping)
+            // Varied Constellation Star-Node Lyrics
             const now = performance.now();
             const pts = constellationNodes.map((node, i) => {
               const elapsed = Math.max(0, now - node.spawnTime - node.delay);
@@ -2139,6 +2285,124 @@
             }
             starCtx.restore();
           }
+        }
+
+        // View 5: Spectrum Bars Visualizer
+        if (currentStage === 5) {
+          const w = barsCanvas.clientWidth;
+          const h = barsCanvas.clientHeight;
+          barsCtx.clearRect(0, 0, w, h);
+
+          const padX = 18;
+          const usableW = w - padX * 2;
+          const gap = 4;
+          const barW = Math.max(3, (usableW - gap * (EQ_BANDS - 1)) / EQ_BANDS);
+          const baseY = h * 0.78;
+          const maxBarH = h * 0.56;
+
+          for (let i = 0; i < EQ_BANDS; i++) {
+            const amp = eqSpectrum[i];
+            const peak = barPeaks[i];
+            const x = padX + i * (barW + gap);
+            const barH = Math.max(6, amp * maxBarH);
+            const peakY = baseY - peak * maxBarH - 5;
+            const col = i < 12 ? c1 : i < 24 ? c2 : c3;
+
+            const grad = barsCtx.createLinearGradient(0, baseY - barH, 0, baseY);
+            grad.addColorStop(0, `rgba(255, 255, 255, 0.92)`);
+            grad.addColorStop(0.3, `rgba(${col[0]}, ${col[1]}, ${col[2]}, 0.88)`);
+            grad.addColorStop(1, `rgba(${col[0]}, ${col[1]}, ${col[2]}, 0.22)`);
+
+            barsCtx.fillStyle = grad;
+            barsCtx.beginPath();
+            barsCtx.roundRect(x, baseY - barH, barW, barH, [4, 4, 0, 0]);
+            barsCtx.fill();
+
+            // Reflection
+            barsCtx.fillStyle = `rgba(${col[0]}, ${col[1]}, ${col[2]}, 0.14)`;
+            barsCtx.fillRect(x, baseY + 3, barW, barH * 0.25);
+
+            // Floating peak cap
+            barsCtx.fillStyle = `rgba(255, 255, 255, 0.85)`;
+            barsCtx.fillRect(x, peakY, barW, 2.5);
+          }
+        }
+
+        // View 6: Aurora Borealis Ribbon Visualizer
+        if (currentStage === 6) {
+          const w = auroraCanvas.clientWidth;
+          const h = auroraCanvas.clientHeight;
+          auroraCtx.clearRect(0, 0, w, h);
+
+          auroraCtx.save();
+          auroraCtx.globalCompositeOperation = "screen";
+          const curtains = [
+            { col: c1, yBase: 0.42, amp: 32 + smoothBass * 55, speed: 0.9, freq: 2.1 },
+            { col: c2, yBase: 0.48, amp: 26 + smoothMid * 48, speed: -1.2, freq: 2.8 },
+            { col: c3, yBase: 0.54, amp: 22 + smoothHigh * 42, speed: 1.5, freq: 3.6 }
+          ];
+
+          for (const cur of curtains) {
+            auroraCtx.beginPath();
+            for (let x = 0; x <= w; x += 8) {
+              const nx = x / w;
+              const yTop = h * cur.yBase + Math.sin(nx * Math.PI * cur.freq + t * cur.speed) * cur.amp;
+              if (x === 0) auroraCtx.moveTo(x, yTop);
+              else auroraCtx.lineTo(x, yTop);
+            }
+            for (let x = w; x >= 0; x -= 8) {
+              const nx = x / w;
+              const yBot = h * (cur.yBase + 0.24) + Math.cos(nx * Math.PI * (cur.freq + 1) - t * cur.speed) * (cur.amp * 0.6);
+              auroraCtx.lineTo(x, yBot);
+            }
+            auroraCtx.closePath();
+
+            const grad = auroraCtx.createLinearGradient(0, h * 0.18, 0, h * 0.82);
+            grad.addColorStop(0, "rgba(0,0,0,0)");
+            grad.addColorStop(0.45, `rgba(${cur.col[0]}, ${cur.col[1]}, ${cur.col[2]}, 0.55)`);
+            grad.addColorStop(0.75, `rgba(${cur.col[0]}, ${cur.col[1]}, ${cur.col[2]}, 0.22)`);
+            grad.addColorStop(1, "rgba(0,0,0,0)");
+            auroraCtx.fillStyle = grad;
+            auroraCtx.fill();
+          }
+          auroraCtx.restore();
+        }
+
+        // View 7: Oscilloscope Waveform Visualizer
+        if (currentStage === 7) {
+          const w = wfCanvas.clientWidth;
+          const h = wfCanvas.clientHeight;
+          wfCtx.clearRect(0, 0, w, h);
+
+          const midY = h * 0.46;
+          wfCtx.save();
+          wfCtx.globalCompositeOperation = "screen";
+
+          const traces = [
+            { col: c1, lw: 3.2, mult: 1.0, phase: 0 },
+            { col: c2, lw: 2.2, mult: 0.72, phase: 1.8 },
+            { col: c3, lw: 1.6, mult: 0.48, phase: 3.4 }
+          ];
+
+          for (const tr of traces) {
+            wfCtx.strokeStyle = `rgba(${tr.col[0]}, ${tr.col[1]}, ${tr.col[2]}, 0.88)`;
+            wfCtx.shadowColor = `rgba(${tr.col[0]}, ${tr.col[1]}, ${tr.col[2]}, 0.75)`;
+            wfCtx.shadowBlur = 12;
+            wfCtx.lineWidth = tr.lw;
+            wfCtx.beginPath();
+
+            for (let x = 0; x <= w; x += 4) {
+              const nx = x / w;
+              const env = Math.sin(nx * Math.PI);
+              const bandIdx = Math.min(EQ_BANDS - 1, Math.floor(nx * EQ_BANDS));
+              const amp = eqSpectrum[bandIdx];
+              const y = midY + Math.sin(nx * Math.PI * 8 + t * 4.5 + tr.phase) * env * (12 + amp * h * 0.28) * tr.mult;
+              if (x === 0) wfCtx.moveTo(x, y);
+              else wfCtx.lineTo(x, y);
+            }
+            wfCtx.stroke();
+          }
+          wfCtx.restore();
         }
 
         requestAnimationFrame(render);
@@ -2422,7 +2686,7 @@
       }
     }
 
-    // Multi-Tier Synced Lyrics + All 5 Stage Renderers
+    // Multi-Tier Synced Lyrics + All 8 Stage Renderers
     function setSourceTag(label) {
       const tag = document.getElementById("lyric-source-tag");
       if (!label) {
@@ -2453,27 +2717,27 @@
       }, 130);
     }
 
-    function formatCodestyleLine(txt) {
+    // Inserts <wbr> right after each dot so Codestyle wraps cleanly between whole words
+    function formatCodestyleHtml(txt) {
       const cleaned = (txt || "")
         .toLowerCase()
         .replace(/[^a-z0-9'\s]/g, " ")
         .replace(/\s+/g, " ")
         .trim();
-      if (!cleaned) return "instrumental.pause()";
-      // Keep dot-joined phrasing intact while allowing normal whitespace wrapping if needed
-      return cleaned.split(" ").join(".");
+      if (!cleaned) return "instrumental.<wbr>pause()";
+      return cleaned.split(" ").map(escapeHtml).join(".<wbr>");
     }
 
     function updateCodestyleStage(linesArray, activeOffset, startLineNum = 1) {
       const body = document.getElementById("code-body");
       body.innerHTML = linesArray.map((txt, idx) => {
         const isAct = idx === activeOffset;
-        const formatted = formatCodestyleLine(txt);
+        const formattedHtml = formatCodestyleHtml(txt);
         const num = String(startLineNum + idx).padStart(2, "0");
         return `
           <div class="code-line-row ${isAct ? "active" : ""}">
             <span class="code-num">${num}</span>
-            <span class="code-text">${escapeHtml(formatted)}${isAct ? '<span class="code-cursor"></span>' : ""}</span>
+            <span class="code-text">${formattedHtml}${isAct ? '<span class="code-cursor"></span>' : ""}</span>
           </div>
         `;
       }).join("");
@@ -2485,6 +2749,9 @@
       document.getElementById("sonic-prev").textContent = "";
       document.getElementById("sonic-current").textContent = msg;
       document.getElementById("sonic-next").textContent = "";
+      document.getElementById("bars-lyric").textContent = msg;
+      document.getElementById("aurora-lyric").textContent = msg;
+      document.getElementById("waveform-lyric").textContent = msg;
       updateCodestyleStage([msg], 0, 1);
       if (showConstellationText) {
         buildConstellationForLine(msg);
@@ -2679,6 +2946,11 @@
         setTimeout(() => sonicCur.classList.remove("pop"), 220);
         document.getElementById("sonic-next").textContent = nextText;
 
+        // Overlay lyrics for Spectrum Bars, Aurora, and Waveform
+        document.getElementById("bars-lyric").textContent = currText;
+        document.getElementById("aurora-lyric").textContent = currText;
+        document.getElementById("waveform-lyric").textContent = currText;
+
         // 3. View 3: Codestyle Terminal Stage
         const start = Math.max(0, activeIdx - 1);
         const end = Math.min(lyricsData.length, start + 4);
@@ -2689,7 +2961,7 @@
         if (!slice.length) slice.push("intro.sequence()");
         updateCodestyleStage(slice, Math.max(0, activeIdx - start), start + 1);
 
-        // 4. View 4: Constellation (full line reveal, or Accretion Black Hole during intro/instrumental)
+        // 4. View 4: Constellation (varied shapes, or Accretion Black Hole during intro/instrumental)
         if (activeIdx >= 0 && lyricsData[activeIdx].text) {
           buildConstellationForLine(lyricsData[activeIdx].text);
         } else {
