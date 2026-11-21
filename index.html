@@ -433,7 +433,7 @@
       transform: scale(0.92);
     }
 
-    /* VIEW 2: Sonic Stage (Big Word-Pop + Wave Ribbons) */
+    /* VIEW 2: Sonic Stage */
     .sonic-stage {
       position: relative;
       width: 100%;
@@ -499,20 +499,22 @@
       transition: all 0.3s ease;
     }
 
-    /* VIEW 3: Codestyle Terminal Stage */
+    /* VIEW 3: Codestyle Terminal Stage (Wrapped cleanly inside bounds) */
     .code-terminal {
       width: 100%;
-      max-width: 440px;
-      background: rgba(8, 10, 16, 0.86);
+      max-width: 100%;
+      max-height: 100%;
+      overflow-y: auto;
+      background: rgba(8, 10, 16, 0.88);
       backdrop-filter: blur(22px);
       border: 1px solid rgba(255, 255, 255, 0.22);
       box-shadow: 0 0 32px rgba(56, 189, 248, 0.16), inset 0 0 24px rgba(255, 255, 255, 0.04);
       border-radius: 16px;
-      padding: 16px 18px;
+      padding: 14px 16px;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 12px;
     }
 
     .code-header {
@@ -520,14 +522,22 @@
       align-items: center;
       justify-content: space-between;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      padding-bottom: 10px;
-      font-size: 0.72rem;
+      padding-bottom: 8px;
+      font-size: 0.7rem;
       color: var(--muted);
+      gap: 8px;
+    }
+
+    #code-filename {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .code-dots {
       display: flex;
       gap: 6px;
+      flex-shrink: 0;
     }
 
     .code-dots span {
@@ -545,39 +555,49 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
-      min-height: 150px;
       justify-content: center;
+      min-width: 0;
     }
 
     .code-line-row {
       display: flex;
-      align-items: baseline;
+      align-items: flex-start;
       gap: 10px;
-      font-size: 0.88rem;
+      font-size: 0.82rem;
       line-height: 1.45;
       color: rgba(255, 255, 255, 0.35);
       transition: all 0.25s ease;
+      min-width: 0;
     }
 
     .code-line-row.active {
       color: #ffffff;
-      font-size: 1.02rem;
+      font-size: 0.94rem;
       font-weight: 700;
       text-shadow: 0 0 14px rgba(255, 255, 255, 0.45);
     }
 
+    .code-text {
+      flex: 1;
+      min-width: 0;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
     .code-num {
       color: var(--c1);
-      font-size: 0.74rem;
+      font-size: 0.72rem;
       opacity: 0.7;
       user-select: none;
       min-width: 22px;
+      padding-top: 2px;
+      flex-shrink: 0;
     }
 
     .code-cursor {
       display: inline-block;
-      width: 8px;
-      height: 1.05em;
+      width: 7px;
+      height: 1em;
       background: var(--accent);
       vertical-align: text-bottom;
       margin-left: 4px;
@@ -939,7 +959,7 @@
           <div class="code-body" id="code-body">
             <div class="code-line-row active">
               <span class="code-num">01</span>
-              <span>awaiting.audio.stream()<span class="code-cursor"></span></span>
+              <span class="code-text">awaiting.audio.stream()<span class="code-cursor"></span></span>
             </div>
           </div>
         </div>
@@ -1041,8 +1061,10 @@
     let currentStage = 0;
     const TOTAL_STAGES = 5;
 
-    // Constellation star nodes for current line
+    // Constellation star nodes for current line (paced word-by-word across line window)
     let constellationNodes = [];
+    let constellationStartMs = 0;
+    let constellationSpanMs = 2800;
     let constellationBgStars = Array.from({ length: 34 }, () => ({
       x: Math.random(),
       y: Math.random(),
@@ -1388,7 +1410,7 @@
           document.getElementById("sonic-current").textContent = displayLine;
           document.getElementById("kinetic-lyrics-box").innerHTML = `<div class="k-line active">${escapeHtml(displayLine)}</div>`;
           updateCodestyleStage(["live.cc.stream()", displayLine], 1);
-          buildConstellationForLine(displayLine);
+          buildConstellationForLine(displayLine, currentProgressMs, 2600);
         }
       };
 
@@ -1550,24 +1572,28 @@
       }
     }
 
-    // Build Constellation Star Nodes for a Lyric Line
-    function buildConstellationForLine(lineText) {
+    // Build Constellation Star Nodes paced word-by-word across the lyric line's window
+    function buildConstellationForLine(lineText, lineStartMs = currentProgressMs, spanMs = 2800) {
       const words = (lineText || "♪")
         .split(/\s+/)
         .filter(Boolean)
-        .slice(0, 7);
+        .slice(0, 8);
 
       const count = words.length;
+      constellationStartMs = lineStartMs;
+      constellationSpanMs = Math.max(1200, Math.min(6000, spanMs));
+
       constellationNodes = words.map((word, idx) => {
-        const progress = count === 1 ? 0.5 : idx / (count - 1);
-        const nx = 0.16 + progress * 0.68 + (Math.sin(idx * 2.3 + lineText.length) * 0.05);
-        const ny = 0.24 + ((idx % 2 === 0 ? 0.16 : 0.44) + Math.cos(idx * 1.9 + lineText.length) * 0.12);
+        const frac = count === 1 ? 0.5 : idx / (count - 1);
+        const nx = 0.16 + frac * 0.68 + Math.sin(idx * 2.3 + lineText.length) * 0.04;
+        const ny = 0.22 + (idx % 2 === 0 ? 0.16 : 0.44) + Math.cos(idx * 1.9 + lineText.length) * 0.10;
+        const appearAtMs = count === 1 ? 0 : (idx / count) * (constellationSpanMs * 0.82);
         return {
           word,
-          nx: Math.max(0.14, Math.min(0.86, nx)),
+          nx: Math.max(0.15, Math.min(0.85, nx)),
           ny: Math.max(0.18, Math.min(0.82, ny)),
-          spawnTime: performance.now(),
-          delay: idx * 140
+          appearAtMs,
+          popDurMs: 360
         };
       });
     }
@@ -1768,13 +1794,12 @@
           waveCtx.restore();
         }
 
-        // View 4: Constellation Star-Node Lyrics
+        // View 4: Constellation Star-Node Lyrics (paced by song playback progress)
         if (currentStage === 4) {
           const w = starCanvas.clientWidth;
           const h = starCanvas.clientHeight;
           starCtx.clearRect(0, 0, w, h);
 
-          // Twinkling background starfield
           for (const s of constellationBgStars) {
             const alpha = 0.2 + 0.45 * (0.5 + 0.5 * Math.sin(t * 1.4 + s.twinkle));
             starCtx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
@@ -1783,46 +1808,45 @@
             starCtx.fill();
           }
 
-          const now = performance.now();
-          const pts = constellationNodes.map((node, i) => {
-            const elapsed = Math.max(0, now - node.spawnTime - node.delay);
-            const prog = Math.min(1, elapsed / 260);
-            const floatX = Math.sin(t * 0.9 + i * 1.7) * 5;
-            const floatY = Math.cos(t * 1.1 + i * 2.1) * 5;
-            return {
+          const elapsedInLine = Math.max(0, currentProgressMs - constellationStartMs);
+          const pts = [];
+          for (let i = 0; i < constellationNodes.length; i++) {
+            const node = constellationNodes[i];
+            if (elapsedInLine < node.appearAtMs) break;
+            const age = elapsedInLine - node.appearAtMs;
+            const prog = Math.min(1, age / node.popDurMs);
+            const popScale = prog < 0.7 ? (prog / 0.7) * 1.15 : 1.15 - ((prog - 0.7) / 0.3) * 0.15;
+            const floatX = Math.sin(t * 0.9 + i * 1.7) * 4;
+            const floatY = Math.cos(t * 1.1 + i * 2.1) * 4;
+            pts.push({
               word: node.word,
               x: node.nx * w + floatX,
               y: node.ny * h + floatY,
-              prog
-            };
-          });
+              prog,
+              popScale
+            });
+          }
 
-          // Draw glowing constellation lines between sequential words
           starCtx.save();
           for (let i = 0; i < pts.length - 1; i++) {
             const p1 = pts[i];
             const p2 = pts[i + 1];
-            if (p2.prog <= 0) continue;
             const lineProg = p2.prog;
             const ex = p1.x + (p2.x - p1.x) * lineProg;
             const ey = p1.y + (p2.y - p1.y) * lineProg;
 
-            starCtx.strokeStyle = `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, ${0.55 * lineProg})`;
-            starCtx.lineWidth = 1.5;
+            starCtx.strokeStyle = `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, ${0.6 * lineProg})`;
+            starCtx.lineWidth = 1.6;
             starCtx.beginPath();
             starCtx.moveTo(p1.x, p1.y);
             starCtx.lineTo(ex, ey);
             starCtx.stroke();
           }
 
-          // Draw star points & word labels
-          starCtx.font = "700 15px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
           starCtx.textAlign = "center";
           for (let i = 0; i < pts.length; i++) {
             const p = pts[i];
-            if (p.prog <= 0) continue;
-
-            const pulseR = (3.5 + smoothBass * 3) * p.prog;
+            const pulseR = (3.5 + smoothBass * 2.8) * Math.min(1, p.prog * 1.2);
             const starGlow = starCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, pulseR * 4.5);
             starGlow.addColorStop(0, `rgba(255, 255, 255, ${0.9 * p.prog})`);
             starGlow.addColorStop(0.4, `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, ${0.45 * p.prog})`);
@@ -1837,9 +1861,10 @@
             starCtx.arc(p.x, p.y, pulseR, 0, Math.PI * 2);
             starCtx.fill();
 
-            // Word label offset above/below star
+            const fontSize = Math.round(14 * p.popScale);
+            starCtx.font = `700 ${fontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
             const labelY = i % 2 === 0 ? p.y - 14 : p.y + 22;
-            starCtx.fillStyle = `rgba(255, 255, 255, ${0.95 * p.prog})`;
+            starCtx.fillStyle = `rgba(255, 255, 255, ${p.prog})`;
             starCtx.fillText(p.word, p.x, labelY);
           }
           starCtx.restore();
@@ -2045,16 +2070,33 @@
       try {
         const deviceId = await ensureActiveDevice();
         const q = deviceId ? `?device_id=${encodeURIComponent(deviceId)}` : "";
-        const body = trackUri && contextUri
-          ? { context_uri: contextUri, offset: { uri: trackUri } }
-          : contextUri
-            ? { context_uri: contextUri }
-            : { uris: [trackUri] };
+        let body = {};
 
-        await spFetch("/me/player/play" + q, {
-          method: "PUT",
-          body: JSON.stringify(body)
-        });
+        if (contextUri && trackUri) {
+          body = { context_uri: contextUri, offset: { uri: trackUri } };
+        } else if (contextUri) {
+          body = { context_uri: contextUri };
+        } else if (trackUri) {
+          body = { uris: [trackUri] };
+        }
+
+        try {
+          await spFetch("/me/player/play" + q, {
+            method: "PUT",
+            body: JSON.stringify(body)
+          });
+        } catch (playErr) {
+          // If playing with context_uri + offset fails (e.g. restricted context), fallback to direct track URI
+          if (trackUri && contextUri) {
+            await spFetch("/me/player/play" + q, {
+              method: "PUT",
+              body: JSON.stringify({ uris: [trackUri] })
+            });
+          } else {
+            throw playErr;
+          }
+        }
+
         closeDrawer();
         setTimeout(pollPlayback, 500);
       } catch (e) {
@@ -2112,7 +2154,7 @@
         return `
           <div class="code-line-row ${isAct ? "active" : ""}">
             <span class="code-num">${num}</span>
-            <span>${escapeHtml(formatted)}${isAct ? '<span class="code-cursor"></span>' : ""}</span>
+            <span class="code-text">${escapeHtml(formatted)}${isAct ? '<span class="code-cursor"></span>' : ""}</span>
           </div>
         `;
       }).join("");
@@ -2125,7 +2167,7 @@
       document.getElementById("sonic-current").textContent = msg;
       document.getElementById("sonic-next").textContent = "";
       updateCodestyleStage([msg], 0, 1);
-      buildConstellationForLine(msg);
+      buildConstellationForLine(msg, currentProgressMs, 2600);
     }
 
     function renderKineticLyricsList() {
@@ -2310,7 +2352,7 @@
         setTimeout(() => sonicCur.classList.remove("pop"), 220);
         document.getElementById("sonic-next").textContent = nextText;
 
-        // 3. View 3: Codestyle Terminal Stage (window of 4 lines around active line)
+        // 3. View 3: Codestyle Terminal Stage
         const start = Math.max(0, activeIdx - 1);
         const end = Math.min(lyricsData.length, start + 4);
         const slice = [];
@@ -2320,8 +2362,11 @@
         if (!slice.length) slice.push("intro.sequence()");
         updateCodestyleStage(slice, Math.max(0, activeIdx - start), start + 1);
 
-        // 4. View 4: Constellation Star-Node Stage
-        buildConstellationForLine(currText);
+        // 4. View 4: Constellation Star-Node Stage (paced across actual line duration)
+        const lineStart = activeIdx >= 0 ? lyricsData[activeIdx].timeMs : currentProgressMs;
+        const nextStart = activeIdx + 1 < lyricsData.length ? lyricsData[activeIdx + 1].timeMs : lineStart + 3200;
+        const spanMs = Math.max(1200, Math.min(5500, nextStart - lineStart));
+        buildConstellationForLine(currText, lineStart, spanMs);
       }
     }
 
@@ -2496,15 +2541,22 @@
     function handleSearch(q) {
       clearTimeout(searchTimeout);
       const list = document.getElementById("drawer-list");
+      const errBox = document.getElementById("drawer-error");
+      errBox.innerHTML = "";
       if (!q.trim()) {
         list.innerHTML = "";
         return;
       }
 
+      list.innerHTML = `<div class="list-sub">Searching Spotify...</div>`;
       searchTimeout = setTimeout(async () => {
         try {
-          const data = await spFetch(`/search?type=track&limit=20&q=${encodeURIComponent(q)}`);
-          const tracks = data.tracks?.items || [];
+          const data = await spFetch(`/search?type=track&limit=20&q=${encodeURIComponent(q.trim())}`);
+          const tracks = data?.tracks?.items || [];
+          if (!tracks.length) {
+            list.innerHTML = `<div class="list-sub">No tracks found for "${escapeHtml(q.trim())}".</div>`;
+            return;
+          }
           list.innerHTML = "";
           for (const t of tracks) {
             const row = document.createElement("div");
@@ -2521,7 +2573,8 @@
             list.appendChild(row);
           }
         } catch (e) {
-          document.getElementById("drawer-error").innerHTML = `<div class="error-banner">${escapeHtml(e.message)}</div>`;
+          list.innerHTML = "";
+          errBox.innerHTML = `<div class="error-banner"><strong>Search Error (${e.status || "API"}):</strong> ${escapeHtml(e.message)}</div>`;
         }
       }, 350);
     }
@@ -2533,7 +2586,7 @@
         document.getElementById("setup-screen").style.display = "none";
         document.getElementById("player-screen").style.display = "flex";
         if (sdkReady) setupWebPlaybackPlayer();
-        buildConstellationForLine("Portal Constellation Stage");
+        buildConstellationForLine("Portal Constellation Stage", 0, 3000);
         initStageSwipe();
         initVisualizers();
         initScrubber();
