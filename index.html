@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Portal v13 — 15-Stage Spotify Visualizer & Lyrics</title>
+  <title>Portal v14 — 12-Stage Spotify Visualizer & Lyrics</title>
   <script src="https://sdk.scdn.co/spotify-player.js"></script>
   <style>
     :root {
@@ -672,7 +672,7 @@
       line-height: 1.3;
     }
 
-    /* VIEW 12: Cover Focus Stage */
+    /* VIEW 10: Cover Focus Stage */
     .cover-focus-wrap {
       position: relative;
       width: 100%;
@@ -697,7 +697,7 @@
       object-fit: cover;
       background: rgba(255, 255, 255, 0.06);
       box-shadow: 0 18px 44px rgba(0, 0, 0, 0.68), 0 0 36px var(--stage-glow);
-      transition: transform 0.25s ease;
+      transition: transform 0.14s ease-out;
     }
 
     #cover-focus-lyric {
@@ -975,8 +975,8 @@
   <div id="backdrop-overlay"></div>
 
   <div id="setup-screen">
-    <div class="brand">Portal v13</div>
-    <div class="subtitle">15-stage Spotify visualizer & synced lyrics — Boost EQ, Dyno, Vinyl, Matrix, Warp, Lava, Constellation & more.</div>
+    <div class="brand">Portal v14</div>
+    <div class="subtitle">12-stage Spotify visualizer & synced lyrics — Beat-locked Boost EQ, Dyno, sequential Constellation, Spectrum Bars, Aurora, Waveform & more.</div>
 
     <div class="card">
       <span class="label">1. Your Redirect URI (Add in Spotify Dashboard)</span>
@@ -995,7 +995,7 @@
       <ol class="steps">
         <li>Add the green URL above under <strong>Redirect URIs</strong> in your Spotify Developer Dashboard.</li>
         <li>Add your Spotify email under <strong>Settings → User Management</strong> (Premium required for direct browser playback).</li>
-        <li>Swipe the stage or scroll the carousel strip to explore all <strong>15 visualizers</strong> including <strong>Boost EQ</strong>, <strong>Dyno</strong>, <strong>Vinyl</strong>, <strong>Matrix</strong>, <strong>Warp</strong>, <strong>Cover</strong>, and <strong>Lava</strong>.</li>
+        <li>Swipe the stage or scroll the carousel strip to switch across all <strong>12 visualizers</strong>.</li>
       </ol>
     </div>
   </div>
@@ -1014,7 +1014,7 @@
       </div>
     </div>
 
-    <!-- 15-Screen Swipeable Visualizer & Lyric Stage -->
+    <!-- 12-Screen Swipeable Visualizer & Lyric Stage -->
     <div class="stage-container" id="stage-container">
       <!-- 0: Orb EQ -->
       <div class="stage-view active" id="view-orb">
@@ -1110,31 +1110,7 @@
         </div>
       </div>
 
-      <!-- 10: Vinyl Turntable -->
-      <div class="stage-view" id="view-vinyl">
-        <div class="canvas-stage-wrap" onclick="togglePlay()">
-          <canvas class="stage-canvas" id="vinyl-canvas"></canvas>
-          <div class="canvas-lyric-overlay" id="vinyl-lyric">Spinning vinyl groove</div>
-        </div>
-      </div>
-
-      <!-- 11: Matrix Cyber Rain -->
-      <div class="stage-view" id="view-matrix">
-        <div class="canvas-stage-wrap" onclick="togglePlay()">
-          <canvas class="stage-canvas" id="matrix-canvas"></canvas>
-          <div class="canvas-lyric-overlay" id="matrix-lyric">Matrix lyric stream</div>
-        </div>
-      </div>
-
-      <!-- 12: 3D Warp Grid Tunnel -->
-      <div class="stage-view" id="view-warp">
-        <div class="canvas-stage-wrap" onclick="togglePlay()">
-          <canvas class="stage-canvas" id="warp-canvas"></canvas>
-          <div class="canvas-lyric-overlay" id="warp-lyric">Warp drive engaged</div>
-        </div>
-      </div>
-
-      <!-- 13: Minimalist Cover Focus -->
+      <!-- 10: Minimalist Cover Focus -->
       <div class="stage-view" id="view-cover">
         <div class="cover-focus-wrap" onclick="togglePlay()">
           <img id="cover-focus-art" src="" alt="" />
@@ -1142,7 +1118,7 @@
         </div>
       </div>
 
-      <!-- 14: Liquid Lava Lamp -->
+      <!-- 11: Liquid Lava Lamp -->
       <div class="stage-view" id="view-lava">
         <div class="canvas-stage-wrap" onclick="togglePlay()">
           <canvas class="stage-canvas" id="lava-canvas"></canvas>
@@ -1164,11 +1140,8 @@
         <button class="stage-pill" id="pill-7" onclick="setStage(7)">Waveform</button>
         <button class="stage-pill" id="pill-8" onclick="setStage(8)">Boost EQ</button>
         <button class="stage-pill" id="pill-9" onclick="setStage(9)">Dyno</button>
-        <button class="stage-pill" id="pill-10" onclick="setStage(10)">Vinyl</button>
-        <button class="stage-pill" id="pill-11" onclick="setStage(11)">Matrix</button>
-        <button class="stage-pill" id="pill-12" onclick="setStage(12)">Warp</button>
-        <button class="stage-pill" id="pill-13" onclick="setStage(13)">Cover</button>
-        <button class="stage-pill" id="pill-14" onclick="setStage(14)">Lava</button>
+        <button class="stage-pill" id="pill-10" onclick="setStage(10)">Cover</button>
+        <button class="stage-pill" id="pill-11" onclick="setStage(11)">Lava</button>
       </div>
     </div>
 
@@ -1249,13 +1222,13 @@
     let progressTimer = null;
     let searchTimeout = null;
 
-    // 15-screen stage state
+    // 12-screen stage state
     let currentStage = 0;
-    const TOTAL_STAGES = 15;
+    const TOTAL_STAGES = 12;
 
     // Auto-cycle stages between tracks & Color Mood
     let autoCycleStages = false;
-    let colorMoodMode = 0; // 0 = Balanced, 1 = Neon Vivid, 2 = Deep Moody
+    let colorMoodMode = 0;
     let rawAlbumColors = [
       [56, 189, 248],
       [168, 85, 247],
@@ -1268,10 +1241,12 @@
     // Local Recent / Quick-Play Tracks
     let recentTracks = JSON.parse(localStorage.getItem("portal_recent_tracks") || "[]");
 
-    // Constellation star nodes (seeded organic collision-checked star map) + Accent Stars + Shooting Star
+    // Constellation star nodes (seeded organic sequence with lyric progress sweep)
     let constellationNodes = [];
     let constellationDecorStars = [];
     let constellationHasLyrics = false;
+    let constellationStartMs = 0;
+    let constellationDurationMs = 2400;
     let shootingStar = null;
     let shockwaveRing = 0;
     let constellationBgStars = Array.from({ length: 52 }, () => ({
@@ -1280,15 +1255,6 @@
       r: 0.6 + Math.random() * 1.4,
       twinkle: Math.random() * Math.PI * 2
     }));
-
-    // Vinyl Album Cover Image Cache
-    let vinylCoverImg = null;
-    let vinylAngle = 0;
-
-    // Matrix Rain Columns
-    const MATRIX_COLS = 28;
-    const matrixDrops = Array.from({ length: MATRIX_COLS }, () => Math.random() * 24);
-    const MATRIX_CHARS = "01PORTALV13✦◈▲●⚡";
 
     // Lava Lamp Blobs
     const lavaBlobs = Array.from({ length: 7 }, (_, i) => ({
@@ -1325,10 +1291,12 @@
     let audioAnalysis = null;
     let lyricPulse = 0;
 
-    // 36-band equalizer spectrum + Live Mic Web Audio Analyser
+    // 36-band equalizer spectrum + beat-transient detectors
     const EQ_BANDS = 36;
     const eqSpectrum = new Float32Array(EQ_BANDS);
     const barPeaks = new Float32Array(EQ_BANDS);
+    let beatImpulse = 0;
+    let rawBassPeak = 0;
     let micActive = false;
     let audioCtx = null;
     let analyserNode = null;
@@ -1433,9 +1401,6 @@
         "view-waveform",
         "view-boost",
         "view-dyno",
-        "view-vinyl",
-        "view-matrix",
-        "view-warp",
         "view-cover",
         "view-lava"
       ];
@@ -1725,9 +1690,6 @@
       document.getElementById("waveform-lyric").textContent = text;
       document.getElementById("boost-lyric").textContent = text;
       document.getElementById("dyno-lyric").textContent = text;
-      document.getElementById("vinyl-lyric").textContent = text;
-      document.getElementById("matrix-lyric").textContent = text;
-      document.getElementById("warp-lyric").textContent = text;
       document.getElementById("cover-focus-lyric").textContent = text;
       document.getElementById("lava-lyric").textContent = text;
     }
@@ -1760,7 +1722,7 @@
           setOverlayLyrics(displayLine);
           document.getElementById("kinetic-lyrics-box").innerHTML = `<div class="k-line active">${escapeHtml(displayLine)}</div>`;
           updateCodestyleStage(["live.cc.stream()", displayLine], 1);
-          buildConstellationForLine(displayLine);
+          buildConstellationForLine(displayLine, 1800);
         }
       };
 
@@ -1810,7 +1772,7 @@
         const source = audioCtx.createMediaStreamSource(micStream);
         analyserNode = audioCtx.createAnalyser();
         analyserNode.fftSize = 256;
-        analyserNode.smoothingTimeConstant = 0.72;
+        analyserNode.smoothingTimeConstant = 0.55;
         source.connect(analyserNode);
 
         freqDataArray = new Uint8Array(analyserNode.frequencyBinCount);
@@ -1822,16 +1784,12 @@
       }
     }
 
-    // Extract vibrant colors from album art & cache cover image for Vinyl stage
+    // Extract vibrant colors from album art
     function extractAlbumColors(imageUrl) {
-      if (!imageUrl) {
-        vinylCoverImg = null;
-        return;
-      }
+      if (!imageUrl) return;
       const img = new Image();
       img.crossOrigin = "Anonymous";
       img.onload = () => {
-        vinylCoverImg = img;
         try {
           const c = document.createElement("canvas");
           c.width = 24;
@@ -1867,24 +1825,36 @@
       img.src = imageUrl;
     }
 
-    // Compute current 36-band equalizer values
+    // Snappy, high-reactivity 36-band spectrum + beat impulse detector
     function updateEqualizerBands(t) {
       if (micActive && analyserNode && freqDataArray) {
         analyserNode.getByteFrequencyData(freqDataArray);
+        let lowPeak = 0;
         for (let i = 0; i < EQ_BANDS; i++) {
-          const bin = Math.min(freqDataArray.length - 1, Math.floor(Math.pow(i / EQ_BANDS, 1.45) * (freqDataArray.length * 0.78)));
-          const val = freqDataArray[bin] / 255;
-          eqSpectrum[i] += (val - eqSpectrum[i]) * 0.35;
-          barPeaks[i] = Math.max(eqSpectrum[i], barPeaks[i] - 0.008);
+          const bin = Math.min(freqDataArray.length - 1, Math.floor(Math.pow(i / EQ_BANDS, 1.35) * (freqDataArray.length * 0.78)));
+          const val = Math.min(1, (freqDataArray[bin] / 255) * 1.18);
+          if (i < 6 && val > lowPeak) lowPeak = val;
+          // Fast attack (0.58), snappy decay (0.28)
+          const rate = val > eqSpectrum[i] ? 0.58 : 0.28;
+          eqSpectrum[i] += (val - eqSpectrum[i]) * rate;
+          barPeaks[i] = Math.max(eqSpectrum[i], barPeaks[i] - 0.014);
+        }
+        rawBassPeak = lowPeak;
+        if (lowPeak > 0.58 && lowPeak > beatImpulse) {
+          beatImpulse = lowPeak;
+        } else {
+          beatImpulse *= 0.84;
         }
         return;
       }
 
       if (!isPlaying) {
         for (let i = 0; i < EQ_BANDS; i++) {
-          eqSpectrum[i] += (0.04 - eqSpectrum[i]) * 0.12;
-          barPeaks[i] = Math.max(eqSpectrum[i], barPeaks[i] - 0.006);
+          eqSpectrum[i] += (0.03 - eqSpectrum[i]) * 0.16;
+          barPeaks[i] = Math.max(eqSpectrum[i], barPeaks[i] - 0.01);
         }
+        rawBassPeak *= 0.85;
+        beatImpulse *= 0.82;
         return;
       }
 
@@ -1901,34 +1871,46 @@
         }
       }
 
+      // Sharp beat-locked kick + snare envelope synchronized to track BPM
       const beatsPerSec = trackTempoBpm / 60;
-      const beatPhase = sec * beatsPerSec * Math.PI * 2;
-      const kick = Math.pow(Math.max(0, Math.sin(beatPhase)), 4);
+      const beatCycle = (sec * beatsPerSec) % 1;
+      const kick = Math.exp(-beatCycle * 6.5); // Instant spike on beat 0, sharp exponential drop
+      const snareCycle = ((sec * beatsPerSec) + 0.5) % 1;
+      const snare = Math.exp(-snareCycle * 8.0);
+
+      beatImpulse = Math.max(kick, beatImpulse * 0.82);
 
       if (seg) {
-        const loudNorm = Math.max(0, Math.min(1, (seg.loudness_max + 35) / 35));
+        const loudNorm = Math.max(0, Math.min(1, (seg.loudness_max + 32) / 30));
         const pitches = seg.pitches || [];
+        rawBassPeak = Math.min(1, loudNorm * 0.65 + kick * 0.55);
+
         for (let i = 0; i < EQ_BANDS; i++) {
           const pitchVal = pitches[i % 12] ?? 0.5;
-          const bassBoost = i < 10 ? kick * 0.45 : 0;
-          const target = Math.min(1, loudNorm * (0.35 + pitchVal * 0.65) + bassBoost);
-          eqSpectrum[i] += (target - eqSpectrum[i]) * 0.25;
-          barPeaks[i] = Math.max(eqSpectrum[i], barPeaks[i] - 0.008);
+          const norm = i / EQ_BANDS;
+          const lowHit = (1 - norm) * kick * 0.65;
+          const midSnare = Math.sin(norm * Math.PI) * snare * 0.42;
+          const target = Math.min(1, loudNorm * (0.28 + pitchVal * 0.78) + lowHit + midSnare);
+          const rate = target > eqSpectrum[i] ? 0.55 : 0.28;
+          eqSpectrum[i] += (target - eqSpectrum[i]) * rate;
+          barPeaks[i] = Math.max(eqSpectrum[i], barPeaks[i] - 0.014);
         }
       } else {
+        rawBassPeak = Math.min(1, kick * 0.88 + trackEnergy * 0.18);
         for (let i = 0; i < EQ_BANDS; i++) {
           const norm = i / EQ_BANDS;
-          const bass = (1 - norm) * kick * 0.85;
-          const mid = Math.sin(norm * Math.PI * 3 + t * 3.2) * 0.28 + 0.32;
-          const high = norm * (Math.sin(t * 7.5 + i * 1.7) * 0.5 + 0.5) * 0.55;
-          const target = Math.min(1, (bass + mid * trackEnergy + high) * 0.85);
-          eqSpectrum[i] += (target - eqSpectrum[i]) * 0.22;
-          barPeaks[i] = Math.max(eqSpectrum[i], barPeaks[i] - 0.008);
+          const bass = Math.pow(1 - norm, 1.4) * kick * 0.96;
+          const mid = Math.sin(norm * Math.PI * 2.2) * snare * 0.68;
+          const high = Math.pow(norm, 1.2) * (Math.abs(Math.sin(t * 9.5 + i * 1.9)) * 0.75) * (0.4 + kick * 0.6);
+          const target = Math.min(1, bass + mid + high * trackEnergy);
+          const rate = target > eqSpectrum[i] ? 0.56 : 0.28;
+          eqSpectrum[i] += (target - eqSpectrum[i]) * rate;
+          barPeaks[i] = Math.max(eqSpectrum[i], barPeaks[i] - 0.014);
         }
       }
     }
 
-    // Seeded PRNG so every lyric line gets a genuinely unique, collision-spaced organic star map
+    // Seeded PRNG for unique, non-glitchy sequential constellations
     function createSeededRng(seedStr) {
       let h = 2166136261 >>> 0;
       for (let i = 0; i < seedStr.length; i++) {
@@ -1943,7 +1925,7 @@
       };
     }
 
-    function buildConstellationForLine(lineText) {
+    function buildConstellationForLine(lineText, lineDurationMs = 2400) {
       const clean = (lineText || "").trim();
       if (!clean || clean === "♪" || clean === "•••") {
         constellationHasLyrics = false;
@@ -1961,76 +1943,67 @@
       }
 
       constellationHasLyrics = true;
+      constellationStartMs = performance.now();
+      constellationDurationMs = Math.max(1100, Math.min(4800, lineDurationMs * 0.85));
+
       const rng = createSeededRng(clean + "_" + lastLyricIndex);
       const placed = [];
 
-      // Choose random orientation angle & wandering step so constellations go in all directions
-      let angle = rng() * Math.PI * 2;
-      let cx = 0.26 + rng() * 0.48;
-      let cy = 0.26 + rng() * 0.48;
+      // Choose a randomized directional path (arc, diagonal, S-curve, spiral, or wave)
+      // so the constellation has a clear readable sequence from word 1 -> word N without repeating a fixed template
+      const baseAngle = rng() * Math.PI * 2;
+      const dirX = Math.cos(baseAngle);
+      const dirY = Math.sin(baseAngle);
+      const perpX = -dirY;
+      const perpY = dirX;
+
+      const curveFreq = (0.8 + rng() * 1.4) * (rng() > 0.5 ? 1 : -1);
+      const curveAmp = 0.14 + rng() * 0.16;
+      const span = 0.56 + rng() * 0.14;
 
       for (let idx = 0; idx < words.length; idx++) {
-        let bestX = cx;
-        let bestY = cy;
-        let found = false;
+        const frac = words.length === 1 ? 0.5 : idx / (words.length - 1);
+        const along = (frac - 0.5) * span;
+        const lateral = Math.sin(frac * Math.PI * curveFreq) * curveAmp + (rng() - 0.5) * 0.06;
 
-        for (let attempt = 0; attempt < 40; attempt++) {
-          const stepDist = 0.14 + rng() * 0.14;
-          const turn = (rng() - 0.5) * 1.9;
-          const candAngle = angle + turn;
-          const candX = Math.max(0.15, Math.min(0.85, cx + Math.cos(candAngle) * stepDist));
-          const candY = Math.max(0.16, Math.min(0.82, cy + Math.sin(candAngle) * stepDist));
+        let cx = 0.5 + dirX * along + perpX * lateral;
+        let cy = 0.48 + dirY * along + perpY * lateral;
+        cx = Math.max(0.15, Math.min(0.85, cx));
+        cy = Math.max(0.16, Math.min(0.82, cy));
 
-          // Keep comfortable separation from existing stars so labels don't collide
-          const tooClose = placed.some(p => {
-            const dx = (p.nx - candX) * 1.15;
-            const dy = (p.ny - candY) * 1.35;
-            return Math.hypot(dx, dy) < 0.17;
-          });
-
-          if (!tooClose) {
-            bestX = candX;
-            bestY = candY;
-            angle = candAngle;
-            found = true;
-            break;
-          }
+        // Gentle spacing adjustment if two words get too close
+        for (let attempt = 0; attempt < 18; attempt++) {
+          const tooClose = placed.some(p => Math.hypot((p.nx - cx) * 1.15, (p.ny - cy) * 1.35) < 0.15);
+          if (!tooClose) break;
+          const nudgeAng = rng() * Math.PI * 2;
+          cx = Math.max(0.15, Math.min(0.85, cx + Math.cos(nudgeAng) * 0.06));
+          cy = Math.max(0.16, Math.min(0.82, cy + Math.sin(nudgeAng) * 0.06));
         }
 
-        if (!found) {
-          bestX = 0.16 + rng() * 0.68;
-          bestY = 0.18 + rng() * 0.64;
-        }
-
-        cx = bestX;
-        cy = bestY;
         placed.push({
           word: words[idx],
-          nx: bestX,
-          ny: bestY,
-          spawnTime: performance.now(),
-          delay: idx * 55
+          nx: cx,
+          ny: cy,
+          orderFrac: words.length === 1 ? 0 : idx / words.length
         });
       }
 
       constellationNodes = placed;
 
-      // Add 3–5 unlabelled branching accent stars so each constellation looks like an organic star cluster
+      // Branching unlabelled accent stars tied to sequential anchor stars
       const decorCount = 3 + Math.floor(rng() * 3);
-      constellationDecorStars = Array.from({ length: decorCount }, (_, k) => {
-        const anchor = placed[Math.floor(rng() * placed.length)];
+      constellationDecorStars = Array.from({ length: decorCount }, () => {
+        const aIdx = Math.floor(rng() * placed.length);
+        const anchor = placed[aIdx];
         const dAng = rng() * Math.PI * 2;
-        const dDist = 0.08 + rng() * 0.12;
+        const dDist = 0.08 + rng() * 0.11;
         return {
-          anchorIdx: placed.indexOf(anchor),
+          anchorIdx: aIdx,
           nx: Math.max(0.1, Math.min(0.9, anchor.nx + Math.cos(dAng) * dDist)),
-          ny: Math.max(0.1, Math.min(0.9, anchor.ny + Math.sin(dAng) * dDist)),
-          spawnTime: performance.now(),
-          delay: (k + 1) * 90
+          ny: Math.max(0.1, Math.min(0.9, anchor.ny + Math.sin(dAng) * dDist))
         };
       });
 
-      // Occasional shooting star on lyric change
       if (rng() > 0.55) {
         shootingStar = {
           x: rng() * 0.8 + 0.1,
@@ -2048,7 +2021,7 @@
       constellationDecorStars = [];
     }
 
-    // Visual Render Loop for all Canvas Stages
+    // Visual Render Loop for all 12 Stages
     function initVisualizers() {
       const orbCanvas = document.getElementById("sphere-canvas");
       const orbCtx = orbCanvas.getContext("2d");
@@ -2066,12 +2039,6 @@
       const boostCtx = boostCanvas.getContext("2d");
       const dynoCanvas = document.getElementById("dyno-canvas");
       const dynoCtx = dynoCanvas.getContext("2d");
-      const vinylCanvas = document.getElementById("vinyl-canvas");
-      const vinylCtx = vinylCanvas.getContext("2d");
-      const matrixCanvas = document.getElementById("matrix-canvas");
-      const matrixCtx = matrixCanvas.getContext("2d");
-      const warpCanvas = document.getElementById("warp-canvas");
-      const warpCtx = warpCanvas.getContext("2d");
       const lavaCanvas = document.getElementById("lava-canvas");
       const lavaCtx = lavaCanvas.getContext("2d");
 
@@ -2079,6 +2046,7 @@
       let smoothBass = 0.15;
       let smoothMid = 0.15;
       let smoothHigh = 0.15;
+      let boostNeedleVal = 0.08;
 
       function resize() {
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -2091,9 +2059,6 @@
           [wfCanvas, wfCtx],
           [boostCanvas, boostCtx],
           [dynoCanvas, dynoCtx],
-          [vinylCanvas, vinylCtx],
-          [matrixCanvas, matrixCtx],
-          [warpCanvas, warpCtx],
           [lavaCanvas, lavaCtx]
         ].forEach(([c, ctx]) => {
           if (!c) return;
@@ -2115,7 +2080,7 @@
       function render() {
         for (let i = 0; i < 3; i++) {
           for (let j = 0; j < 3; j++) {
-            spherePalette[i][j] = lerp(spherePalette[i][j], targetPalette[i][j], 0.05);
+            spherePalette[i][j] = lerp(spherePalette[i][j], targetPalette[i][j], 0.06);
           }
         }
 
@@ -2127,17 +2092,18 @@
         for (let i = 24; i < 36; i++) hSum += eqSpectrum[i];
 
         const prevBass = smoothBass;
-        smoothBass = lerp(smoothBass, bSum / 12 + lyricPulse * 0.5, 0.24);
-        smoothMid = lerp(smoothMid, mSum / 12, 0.22);
-        smoothHigh = lerp(smoothHigh, hSum / 12, 0.22);
+        // Snappier smoothing for punchy visualizer response
+        smoothBass = lerp(smoothBass, bSum / 12 + lyricPulse * 0.55, 0.42);
+        smoothMid = lerp(smoothMid, mSum / 12, 0.38);
+        smoothHigh = lerp(smoothHigh, hSum / 12, 0.38);
 
-        if (smoothBass > 0.56 && smoothBass - prevBass > 0.05 && shockwaveRing < 0.15) {
+        if (smoothBass > 0.52 && smoothBass - prevBass > 0.045 && shockwaveRing < 0.15) {
           shockwaveRing = 1.0;
         }
-        shockwaveRing = Math.max(0, shockwaveRing - 0.022);
+        shockwaveRing = Math.max(0, shockwaveRing - 0.024);
 
-        lyricPulse *= 0.88;
-        t += isPlaying || micActive ? 0.032 : 0.008;
+        lyricPulse *= 0.86;
+        t += isPlaying || micActive ? 0.036 : 0.008;
 
         const [c1, c2, c3] = spherePalette.map(rgb => rgb.map(v => Math.round(v)));
 
@@ -2162,7 +2128,7 @@
             orbCtx.restore();
           }
 
-          const glow = orbCtx.createRadialGradient(cx, cy, baseR * 0.2, cx, cy, baseR * (1.42 + smoothBass * 0.32));
+          const glow = orbCtx.createRadialGradient(cx, cy, baseR * 0.2, cx, cy, baseR * (1.42 + smoothBass * 0.35));
           glow.addColorStop(0, `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, 0.38)`);
           glow.addColorStop(0.55, `rgba(${c2[0]}, ${c2[1]}, ${c2[2]}, 0.18)`);
           glow.addColorStop(1, "rgba(0, 0, 0, 0)");
@@ -2179,7 +2145,7 @@
             const amp = eqSpectrum[bandIdx];
             const angle = (i / totalBars) * Math.PI * 2 - Math.PI / 2;
             const innerR = baseR * (1.05 + smoothBass * 0.12);
-            const barLen = 4 + amp * (baseR * 0.38);
+            const barLen = 4 + amp * (baseR * 0.4);
             const x1 = cx + Math.cos(angle) * innerR;
             const y1 = cy + Math.sin(angle) * innerR;
             const x2 = cx + Math.cos(angle) * (innerR + barLen);
@@ -2261,9 +2227,9 @@
           waveCtx.clearRect(0, 0, w, h);
 
           const ribbons = [
-            { col: c1, amp: 24 + smoothBass * 55, freq: 2.2, speed: 1.4, yOff: 0.72, alpha: 0.34 },
-            { col: c2, amp: 18 + smoothMid * 42, freq: 3.1, speed: -1.8, yOff: 0.76, alpha: 0.28 },
-            { col: c3, amp: 14 + smoothHigh * 35, freq: 4.4, speed: 2.3, yOff: 0.80, alpha: 0.24 }
+            { col: c1, amp: 24 + smoothBass * 58, freq: 2.2, speed: 1.4, yOff: 0.72, alpha: 0.34 },
+            { col: c2, amp: 18 + smoothMid * 46, freq: 3.1, speed: -1.8, yOff: 0.76, alpha: 0.28 },
+            { col: c3, amp: 14 + smoothHigh * 38, freq: 4.4, speed: 2.3, yOff: 0.80, alpha: 0.24 }
           ];
 
           waveCtx.save();
@@ -2290,7 +2256,7 @@
           waveCtx.restore();
         }
 
-        // View 4: Constellation (Organic Collision-Checked Star Map) OR Accretion Black Hole
+        // View 4: Constellation (Sequential Lyric-Progress Star Map) OR Accretion Black Hole
         if (currentStage === 4) {
           const w = starCanvas.clientWidth;
           const h = starCanvas.clientHeight;
@@ -2436,51 +2402,58 @@
             starCtx.restore();
             starCtx.restore();
           } else {
+            // Sequential lyric progress sweep across words (1 -> N) without glitching
             const now = performance.now();
+            const lineElapsed = Math.max(0, now - constellationStartMs);
+            const lineProgress = Math.min(1, lineElapsed / constellationDurationMs);
+            const windowSpan = Math.max(0.18, 1 / Math.max(1, constellationNodes.length));
+
             const pts = constellationNodes.map((node, i) => {
-              const elapsed = Math.max(0, now - node.spawnTime - node.delay);
-              const prog = Math.min(1, elapsed / 240);
-              const floatX = Math.sin(t * 0.9 + i * 1.7) * 4;
-              const floatY = Math.cos(t * 1.1 + i * 2.1) * 4;
+              const localProg = Math.max(0, Math.min(1, (lineProgress - node.orderFrac * 0.85) / windowSpan));
+              const isLeading = lineProgress >= node.orderFrac * 0.85 && lineProgress < (node.orderFrac * 0.85 + windowSpan * 1.35);
+              const floatX = Math.sin(t * 0.85 + i * 1.4) * 3.5;
+              const floatY = Math.cos(t * 1.05 + i * 1.8) * 3.5;
               return {
                 word: node.word,
                 x: node.nx * w + floatX,
                 y: node.ny * h + floatY,
-                prog
+                prog: localProg,
+                isLeading
               };
             });
 
             starCtx.save();
 
-            // Branching unlabelled accent stars
+            // Branching accent stars appear smoothly once their anchor star ignites
             for (const d of constellationDecorStars) {
               const anchor = pts[d.anchorIdx];
-              if (!anchor || anchor.prog < 0.5) continue;
+              if (!anchor || anchor.prog < 0.45) continue;
               const dx = d.nx * w;
               const dy = d.ny * h;
-              starCtx.strokeStyle = `rgba(${c2[0]}, ${c2[1]}, ${c2[2]}, 0.32)`;
+              starCtx.strokeStyle = `rgba(${c2[0]}, ${c2[1]}, ${c2[2]}, ${0.3 * anchor.prog})`;
               starCtx.lineWidth = 1;
               starCtx.beginPath();
               starCtx.moveTo(anchor.x, anchor.y);
               starCtx.lineTo(dx, dy);
               starCtx.stroke();
 
-              starCtx.fillStyle = `rgba(255, 255, 255, 0.55)`;
+              starCtx.fillStyle = `rgba(255, 255, 255, ${0.55 * anchor.prog})`;
               starCtx.beginPath();
               starCtx.arc(dx, dy, 2, 0, Math.PI * 2);
               starCtx.fill();
             }
 
+            // Draw sequential constellation beam from star i to star i+1
             for (let i = 0; i < pts.length - 1; i++) {
               const p1 = pts[i];
               const p2 = pts[i + 1];
               if (p2.prog <= 0) continue;
-              const lineProg = p2.prog;
-              const ex = p1.x + (p2.x - p1.x) * lineProg;
-              const ey = p1.y + (p2.y - p1.y) * lineProg;
+              const beamProg = p2.prog;
+              const ex = p1.x + (p2.x - p1.x) * beamProg;
+              const ey = p1.y + (p2.y - p1.y) * beamProg;
 
-              starCtx.strokeStyle = `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, ${0.62 * lineProg})`;
-              starCtx.lineWidth = 1.6;
+              starCtx.strokeStyle = `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, ${0.68 * beamProg})`;
+              starCtx.lineWidth = 1.8;
               starCtx.beginPath();
               starCtx.moveTo(p1.x, p1.y);
               starCtx.lineTo(ex, ey);
@@ -2493,12 +2466,13 @@
 
             for (let i = 0; i < pts.length; i++) {
               const p = pts[i];
-              if (p.prog <= 0) continue;
+              if (p.prog <= 0.02) continue;
 
-              const pulseR = (3.5 + smoothBass * 3) * p.prog;
+              const leadBoost = p.isLeading ? 1.35 : 1.0;
+              const pulseR = (3.4 + smoothBass * 2.8) * p.prog * leadBoost;
               const starGlow = starCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, pulseR * 4.5);
-              starGlow.addColorStop(0, `rgba(255, 255, 255, ${0.9 * p.prog})`);
-              starGlow.addColorStop(0.4, `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, ${0.45 * p.prog})`);
+              starGlow.addColorStop(0, `rgba(255, 255, 255, ${0.95 * p.prog})`);
+              starGlow.addColorStop(0.4, `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, ${0.5 * p.prog})`);
               starGlow.addColorStop(1, "rgba(0, 0, 0, 0)");
               starCtx.fillStyle = starGlow;
               starCtx.beginPath();
@@ -2513,53 +2487,57 @@
               const halfW = starCtx.measureText(p.word).width / 2 + 6;
               const clampedX = Math.max(halfW, Math.min(w - halfW, p.x));
               const labelY = i % 2 === 0 ? p.y - 12 : p.y + 20;
-              starCtx.fillStyle = `rgba(255, 255, 255, ${0.95 * p.prog})`;
+              starCtx.fillStyle = p.isLeading
+                ? "#ffffff"
+                : `rgba(255, 255, 255, ${0.88 * p.prog})`;
               starCtx.fillText(p.word, clampedX, labelY);
             }
             starCtx.restore();
           }
         }
 
-        // View 5: Spectrum Bars Visualizer
+        // View 5: High-Reactivity Spectrum Bars Visualizer
         if (currentStage === 5) {
           const w = barsCanvas.clientWidth;
           const h = barsCanvas.clientHeight;
           barsCtx.clearRect(0, 0, w, h);
 
-          const padX = 18;
+          const padX = 16;
           const usableW = w - padX * 2;
           const gap = 4;
           const barW = Math.max(3, (usableW - gap * (EQ_BANDS - 1)) / EQ_BANDS);
           const baseY = h * 0.78;
-          const maxBarH = h * 0.56;
+          const maxBarH = h * 0.64;
 
           for (let i = 0; i < EQ_BANDS; i++) {
-            const amp = eqSpectrum[i];
-            const peak = barPeaks[i];
+            // Boost contrast curve so mids/highs pop aggressively alongside bass
+            const rawAmp = eqSpectrum[i];
+            const amp = Math.min(1, Math.pow(rawAmp, 0.78) * 1.15);
+            const peak = Math.min(1, Math.pow(barPeaks[i], 0.78) * 1.15);
             const x = padX + i * (barW + gap);
             const barH = Math.max(6, amp * maxBarH);
             const peakY = baseY - peak * maxBarH - 5;
             const col = i < 12 ? c1 : i < 24 ? c2 : c3;
 
             const grad = barsCtx.createLinearGradient(0, baseY - barH, 0, baseY);
-            grad.addColorStop(0, "rgba(255, 255, 255, 0.92)");
-            grad.addColorStop(0.3, `rgba(${col[0]}, ${col[1]}, ${col[2]}, 0.88)`);
-            grad.addColorStop(1, `rgba(${col[0]}, ${col[1]}, ${col[2]}, 0.22)`);
+            grad.addColorStop(0, "#ffffff");
+            grad.addColorStop(0.25, `rgba(${col[0]}, ${col[1]}, ${col[2]}, 0.96)`);
+            grad.addColorStop(1, `rgba(${col[0]}, ${col[1]}, ${col[2]}, 0.25)`);
 
             barsCtx.fillStyle = grad;
             barsCtx.beginPath();
             barsCtx.roundRect(x, baseY - barH, barW, barH, [4, 4, 0, 0]);
             barsCtx.fill();
 
-            barsCtx.fillStyle = `rgba(${col[0]}, ${col[1]}, ${col[2]}, 0.14)`;
-            barsCtx.fillRect(x, baseY + 3, barW, barH * 0.25);
+            barsCtx.fillStyle = `rgba(${col[0]}, ${col[1]}, ${col[2]}, 0.18)`;
+            barsCtx.fillRect(x, baseY + 3, barW, barH * 0.28);
 
-            barsCtx.fillStyle = "rgba(255, 255, 255, 0.85)";
-            barsCtx.fillRect(x, peakY, barW, 2.5);
+            barsCtx.fillStyle = "#ffffff";
+            barsCtx.fillRect(x, peakY, barW, 3);
           }
         }
 
-        // View 6: Aurora Borealis Ribbon Visualizer
+        // View 6: High-Reactivity Aurora Borealis Visualizer
         if (currentStage === 6) {
           const w = auroraCanvas.clientWidth;
           const h = auroraCanvas.clientHeight;
@@ -2568,30 +2546,32 @@
           auroraCtx.save();
           auroraCtx.globalCompositeOperation = "screen";
           const curtains = [
-            { col: c1, yBase: 0.42, amp: 32 + smoothBass * 55, speed: 0.9, freq: 2.1 },
-            { col: c2, yBase: 0.48, amp: 26 + smoothMid * 48, speed: -1.2, freq: 2.8 },
-            { col: c3, yBase: 0.54, amp: 22 + smoothHigh * 42, speed: 1.5, freq: 3.6 }
+            { col: c1, yBase: 0.40, amp: 28 + smoothBass * 92 + beatImpulse * 28, speed: 1.4, freq: 2.2, alpha: 0.42 + smoothBass * 0.42 },
+            { col: c2, yBase: 0.47, amp: 24 + smoothMid * 82, speed: -1.8, freq: 3.0, alpha: 0.36 + smoothMid * 0.42 },
+            { col: c3, yBase: 0.54, amp: 20 + smoothHigh * 74, speed: 2.2, freq: 3.8, alpha: 0.32 + smoothHigh * 0.45 }
           ];
 
           for (const cur of curtains) {
             auroraCtx.beginPath();
-            for (let x = 0; x <= w; x += 8) {
+            for (let x = 0; x <= w; x += 6) {
               const nx = x / w;
-              const yTop = h * cur.yBase + Math.sin(nx * Math.PI * cur.freq + t * cur.speed) * cur.amp;
+              const bandIdx = Math.min(EQ_BANDS - 1, Math.floor(nx * EQ_BANDS));
+              const localBand = eqSpectrum[bandIdx] * 38;
+              const yTop = h * cur.yBase + Math.sin(nx * Math.PI * cur.freq + t * cur.speed) * cur.amp - localBand;
               if (x === 0) auroraCtx.moveTo(x, yTop);
               else auroraCtx.lineTo(x, yTop);
             }
-            for (let x = w; x >= 0; x -= 8) {
+            for (let x = w; x >= 0; x -= 6) {
               const nx = x / w;
-              const yBot = h * (cur.yBase + 0.24) + Math.cos(nx * Math.PI * (cur.freq + 1) - t * cur.speed) * (cur.amp * 0.6);
+              const yBot = h * (cur.yBase + 0.26) + Math.cos(nx * Math.PI * (cur.freq + 1) - t * cur.speed) * (cur.amp * 0.65);
               auroraCtx.lineTo(x, yBot);
             }
             auroraCtx.closePath();
 
-            const grad = auroraCtx.createLinearGradient(0, h * 0.18, 0, h * 0.82);
+            const grad = auroraCtx.createLinearGradient(0, h * 0.14, 0, h * 0.84);
             grad.addColorStop(0, "rgba(0,0,0,0)");
-            grad.addColorStop(0.45, `rgba(${cur.col[0]}, ${cur.col[1]}, ${cur.col[2]}, 0.55)`);
-            grad.addColorStop(0.75, `rgba(${cur.col[0]}, ${cur.col[1]}, ${cur.col[2]}, 0.22)`);
+            grad.addColorStop(0.45, `rgba(${cur.col[0]}, ${cur.col[1]}, ${cur.col[2]}, ${Math.min(0.92, cur.alpha)})`);
+            grad.addColorStop(0.75, `rgba(${cur.col[0]}, ${cur.col[1]}, ${cur.col[2]}, ${Math.min(0.55, cur.alpha * 0.5)})`);
             grad.addColorStop(1, "rgba(0,0,0,0)");
             auroraCtx.fillStyle = grad;
             auroraCtx.fill();
@@ -2599,7 +2579,7 @@
           auroraCtx.restore();
         }
 
-        // View 7: Oscilloscope Waveform Visualizer
+        // View 7: High-Reactivity Oscilloscope Waveform Visualizer
         if (currentStage === 7) {
           const w = wfCanvas.clientWidth;
           const h = wfCanvas.clientHeight;
@@ -2610,24 +2590,26 @@
           wfCtx.globalCompositeOperation = "screen";
 
           const traces = [
-            { col: c1, lw: 3.2, mult: 1.0, phase: 0 },
-            { col: c2, lw: 2.2, mult: 0.72, phase: 1.8 },
-            { col: c3, lw: 1.6, mult: 0.48, phase: 3.4 }
+            { col: c1, lw: 3.4, mult: 1.15, phase: 0 },
+            { col: c2, lw: 2.4, mult: 0.85, phase: 1.9 },
+            { col: c3, lw: 1.8, mult: 0.60, phase: 3.6 }
           ];
 
           for (const tr of traces) {
-            wfCtx.strokeStyle = `rgba(${tr.col[0]}, ${tr.col[1]}, ${tr.col[2]}, 0.88)`;
-            wfCtx.shadowColor = `rgba(${tr.col[0]}, ${tr.col[1]}, ${tr.col[2]}, 0.75)`;
-            wfCtx.shadowBlur = 12;
+            wfCtx.strokeStyle = `rgba(${tr.col[0]}, ${tr.col[1]}, ${tr.col[2]}, 0.94)`;
+            wfCtx.shadowColor = `rgba(${tr.col[0]}, ${tr.col[1]}, ${tr.col[2]}, 0.85)`;
+            wfCtx.shadowBlur = 14;
             wfCtx.lineWidth = tr.lw;
             wfCtx.beginPath();
 
-            for (let x = 0; x <= w; x += 4) {
+            for (let x = 0; x <= w; x += 3) {
               const nx = x / w;
               const env = Math.sin(nx * Math.PI);
               const bandIdx = Math.min(EQ_BANDS - 1, Math.floor(nx * EQ_BANDS));
-              const amp = eqSpectrum[bandIdx];
-              const y = midY + Math.sin(nx * Math.PI * 8 + t * 4.5 + tr.phase) * env * (12 + amp * h * 0.28) * tr.mult;
+              const amp = Math.pow(eqSpectrum[bandIdx], 0.75);
+              const harmonic = Math.sin(nx * Math.PI * 10 + t * 6.2 + tr.phase) * 0.72
+                             + Math.cos(nx * Math.PI * 18 - t * 8.4 + tr.phase) * 0.28;
+              const y = midY + harmonic * env * (10 + amp * h * 0.36 + beatImpulse * 22) * tr.mult;
               if (x === 0) wfCtx.moveTo(x, y);
               else wfCtx.lineTo(x, y);
             }
@@ -2636,7 +2618,7 @@
           wfCtx.restore();
         }
 
-        // View 8: Boost EQ (Tachometer / Boost Gauge)
+        // View 8: Beat-Locked Boost EQ (Tachometer / Boost Gauge)
         if (currentStage === 8) {
           const w = boostCanvas.clientWidth;
           const h = boostCanvas.clientHeight;
@@ -2649,17 +2631,22 @@
           const endAng = Math.PI * 2.25;
           const totalSweep = endAng - startAng;
 
-          // Load level driven by bass & energy
-          const load = Math.min(1, Math.max(0.06, smoothBass * 0.78 + smoothMid * 0.32));
-          const rpm = Math.round(900 + load * 6300);
-          const boostPsi = ((load - 0.28) * 26).toFixed(1);
+          // Beat-locked engine load: snaps up instantly on beatImpulse / rawBassPeak, drops fast between hits
+          const targetLoad = isPlaying || micActive
+            ? Math.min(1, Math.max(0.08, beatImpulse * 0.74 + rawBassPeak * 0.32))
+            : 0.05;
+          const needleRate = targetLoad > boostNeedleVal ? 0.65 : 0.22;
+          boostNeedleVal = lerp(boostNeedleVal, targetLoad, needleRate);
+
+          const rpm = Math.round(850 + boostNeedleVal * 6450);
+          const boostPsi = ((boostNeedleVal - 0.24) * 28).toFixed(1);
 
           // Shift light LED bar across top
           const ledCount = 10;
           const ledSpan = Math.min(w * 0.65, 220);
           for (let i = 0; i < ledCount; i++) {
             const thresh = (i + 1) / ledCount;
-            const lit = load >= thresh * 0.92;
+            const lit = boostNeedleVal >= thresh * 0.90;
             const lx = cx - ledSpan / 2 + (i / (ledCount - 1)) * ledSpan;
             const ly = cy - r - 18;
             let ledCol = `rgba(${c3[0]}, ${c3[1]}, ${c3[2]}, 0.95)`;
@@ -2668,7 +2655,7 @@
 
             boostCtx.fillStyle = lit ? ledCol : "rgba(255,255,255,0.1)";
             boostCtx.beginPath();
-            boostCtx.arc(lx, ly, lit ? 5 : 4, 0, Math.PI * 2);
+            boostCtx.arc(lx, ly, lit ? 5.5 : 4, 0, Math.PI * 2);
             boostCtx.fill();
           }
 
@@ -2681,7 +2668,7 @@
           boostCtx.stroke();
 
           // Active swept boost/RPM arc
-          const activeAng = startAng + totalSweep * load;
+          const activeAng = startAng + totalSweep * boostNeedleVal;
           const arcGrad = boostCtx.createLinearGradient(cx - r, cy, cx + r, cy);
           arcGrad.addColorStop(0, `rgb(${c1[0]}, ${c1[1]}, ${c1[2]})`);
           arcGrad.addColorStop(0.65, `rgb(${c2[0]}, ${c2[1]}, ${c2[2]})`);
@@ -2720,9 +2707,9 @@
           // Needle
           boostCtx.save();
           boostCtx.strokeStyle = "#ffffff";
-          boostCtx.shadowColor = `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, 0.9)`;
-          boostCtx.shadowBlur = 12;
-          boostCtx.lineWidth = 3;
+          boostCtx.shadowColor = `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, 0.95)`;
+          boostCtx.shadowBlur = 14;
+          boostCtx.lineWidth = 3.2;
           boostCtx.beginPath();
           boostCtx.moveTo(cx - Math.cos(activeAng) * 14, cy - Math.sin(activeAng) * 14);
           boostCtx.lineTo(cx + Math.cos(activeAng) * (r - 10), cy + Math.sin(activeAng) * (r - 10));
@@ -2745,7 +2732,7 @@
           boostCtx.fillText(`${boostPsi > 0 ? "+" : ""}${boostPsi} PSI`, cx, cy + 15);
         }
 
-        // View 9: Dyno Torque & Horsepower Curve
+        // View 9: Beat-Reactive Dyno Torque & Horsepower Curve
         if (currentStage === 9) {
           const w = dynoCanvas.clientWidth;
           const h = dynoCanvas.clientHeight;
@@ -2776,7 +2763,7 @@
             dynoCtx.stroke();
           }
 
-          // Torque Curve (Low-to-mid punch) + Horsepower Curve (Top-end climb)
+          // Beat-driven pull surge across the RPM sweep
           const tqPts = [];
           const hpPts = [];
           let peakHp = 0;
@@ -2785,10 +2772,11 @@
           for (let i = 0; i < EQ_BANDS; i++) {
             const nx = i / (EQ_BANDS - 1);
             const bandAmp = eqSpectrum[i];
-            const tqVal = Math.min(1, (0.28 + Math.sin(nx * Math.PI * 0.85) * 0.45 + bandAmp * 0.42));
-            const hpVal = Math.min(1, (0.15 + Math.pow(nx, 0.82) * 0.58 + bandAmp * 0.38));
-            peakTq = Math.max(peakTq, Math.round(280 + tqVal * 340));
-            peakHp = Math.max(peakHp, Math.round(260 + hpVal * 380));
+            const pullSurge = beatImpulse * (0.45 + nx * 0.35);
+            const tqVal = Math.min(1, 0.14 + Math.sin(nx * Math.PI * 0.85) * 0.32 + bandAmp * 0.44 + pullSurge * 0.45);
+            const hpVal = Math.min(1, 0.08 + Math.pow(nx, 0.85) * 0.42 + bandAmp * 0.42 + pullSurge * 0.50);
+            peakTq = Math.max(peakTq, Math.round(240 + tqVal * 410));
+            peakHp = Math.max(peakHp, Math.round(220 + hpVal * 460));
             tqPts.push({ x: padL + nx * plotW, y: botY - tqVal * plotH });
             hpPts.push({ x: padL + nx * plotW, y: botY - hpVal * plotH });
           }
@@ -2796,17 +2784,17 @@
           // Draw Torque trace (c2)
           dynoCtx.save();
           dynoCtx.strokeStyle = `rgb(${c2[0]}, ${c2[1]}, ${c2[2]})`;
-          dynoCtx.shadowColor = `rgba(${c2[0]}, ${c2[1]}, ${c2[2]}, 0.75)`;
-          dynoCtx.shadowBlur = 10;
-          dynoCtx.lineWidth = 3;
+          dynoCtx.shadowColor = `rgba(${c2[0]}, ${c2[1]}, ${c2[2]}, 0.85)`;
+          dynoCtx.shadowBlur = 12;
+          dynoCtx.lineWidth = 3.2;
           dynoCtx.beginPath();
           tqPts.forEach((p, idx) => idx === 0 ? dynoCtx.moveTo(p.x, p.y) : dynoCtx.lineTo(p.x, p.y));
           dynoCtx.stroke();
 
           // Draw Horsepower trace (c1)
           dynoCtx.strokeStyle = `rgb(${c1[0]}, ${c1[1]}, ${c1[2]})`;
-          dynoCtx.shadowColor = `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, 0.85)`;
-          dynoCtx.lineWidth = 3.2;
+          dynoCtx.shadowColor = `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, 0.92)`;
+          dynoCtx.lineWidth = 3.4;
           dynoCtx.beginPath();
           hpPts.forEach((p, idx) => idx === 0 ? dynoCtx.moveTo(p.x, p.y) : dynoCtx.lineTo(p.x, p.y));
           dynoCtx.stroke();
@@ -2823,171 +2811,17 @@
           dynoCtx.fillText(`WTQ: ${peakTq} LB-FT`, padL + plotW, topY - 8);
         }
 
-        // View 10: Vinyl Turntable
+        // View 10: Cover Focus subtle beat scale
         if (currentStage === 10) {
-          const w = vinylCanvas.clientWidth;
-          const h = vinylCanvas.clientHeight;
-          vinylCtx.clearRect(0, 0, w, h);
-
-          if (isPlaying) vinylAngle += 0.022;
-          const cx = w * 0.47;
-          const cy = h * 0.46;
-          const discR = Math.min(w, h) * (0.33 + smoothBass * 0.018);
-
-          vinylCtx.save();
-          vinylCtx.translate(cx, cy);
-          vinylCtx.rotate(vinylAngle);
-
-          // Vinyl outer disc
-          const discGrad = vinylCtx.createRadialGradient(0, 0, discR * 0.2, 0, 0, discR);
-          discGrad.addColorStop(0, "#181a22");
-          discGrad.addColorStop(0.55, "#0b0c10");
-          discGrad.addColorStop(1, "#151821");
-          vinylCtx.fillStyle = discGrad;
-          vinylCtx.beginPath();
-          vinylCtx.arc(0, 0, discR, 0, Math.PI * 2);
-          vinylCtx.fill();
-
-          // Grooves
-          vinylCtx.strokeStyle = "rgba(255, 255, 255, 0.07)";
-          vinylCtx.lineWidth = 1;
-          for (let gr = discR * 0.44; gr < discR * 0.94; gr += 6) {
-            vinylCtx.beginPath();
-            vinylCtx.arc(0, 0, gr, 0, Math.PI * 2);
-            vinylCtx.stroke();
-          }
-
-          // Specular vinyl light sheen
-          const sheen = vinylCtx.createConicGradient(0, 0, 0);
-          sheen.addColorStop(0, "rgba(255,255,255,0)");
-          sheen.addColorStop(0.12, `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, 0.22)`);
-          sheen.addColorStop(0.25, "rgba(255,255,255,0)");
-          sheen.addColorStop(0.62, `rgba(${c2[0]}, ${c2[1]}, ${c2[2]}, 0.18)`);
-          sheen.addColorStop(0.75, "rgba(255,255,255,0)");
-          vinylCtx.fillStyle = sheen;
-          vinylCtx.beginPath();
-          vinylCtx.arc(0, 0, discR, 0, Math.PI * 2);
-          vinylCtx.fill();
-
-          // Center label with album cover art
-          const labelR = discR * 0.38;
-          vinylCtx.save();
-          vinylCtx.beginPath();
-          vinylCtx.arc(0, 0, labelR, 0, Math.PI * 2);
-          vinylCtx.clip();
-          if (vinylCoverImg) {
-            vinylCtx.drawImage(vinylCoverImg, -labelR, -labelR, labelR * 2, labelR * 2);
-          } else {
-            vinylCtx.fillStyle = `rgb(${c1[0]}, ${c1[1]}, ${c1[2]})`;
-            vinylCtx.fillRect(-labelR, -labelR, labelR * 2, labelR * 2);
-          }
-          vinylCtx.restore();
-
-          // Spindle hole
-          vinylCtx.fillStyle = "#07080c";
-          vinylCtx.beginPath();
-          vinylCtx.arc(0, 0, 5, 0, Math.PI * 2);
-          vinylCtx.fill();
-          vinylCtx.restore();
-
-          // Tonearm
-          const pivotX = cx + discR * 0.98;
-          const pivotY = cy - discR * 0.85;
-          const armAngle = isPlaying ? 0.42 + smoothMid * 0.04 : 0.14;
-          vinylCtx.save();
-          vinylCtx.translate(pivotX, pivotY);
-          vinylCtx.rotate(armAngle);
-          vinylCtx.strokeStyle = "rgba(255,255,255,0.78)";
-          vinylCtx.lineWidth = 3.5;
-          vinylCtx.lineCap = "round";
-          vinylCtx.beginPath();
-          vinylCtx.moveTo(0, 0);
-          vinylCtx.lineTo(0, discR * 1.15);
-          vinylCtx.stroke();
-          vinylCtx.fillStyle = `rgb(${c1[0]}, ${c1[1]}, ${c1[2]})`;
-          vinylCtx.beginPath();
-          vinylCtx.arc(0, 0, 8, 0, Math.PI * 2);
-          vinylCtx.fill();
-          vinylCtx.restore();
-        }
-
-        // View 11: Matrix Cyber Rain
-        if (currentStage === 11) {
-          const w = matrixCanvas.clientWidth;
-          const h = matrixCanvas.clientHeight;
-          matrixCtx.fillStyle = "rgba(5, 7, 11, 0.24)";
-          matrixCtx.fillRect(0, 0, w, h);
-
-          const colW = w / MATRIX_COLS;
-          matrixCtx.font = "700 13px ui-monospace, monospace";
-          matrixCtx.textAlign = "center";
-
-          for (let i = 0; i < MATRIX_COLS; i++) {
-            const x = i * colW + colW / 2;
-            const y = matrixDrops[i] * 16;
-            const ch = MATRIX_CHARS[Math.floor((t * 10 + i * 3) % MATRIX_CHARS.length)];
-            const amp = eqSpectrum[i % EQ_BANDS];
-
-            matrixCtx.fillStyle = amp > 0.55
-              ? "#ffffff"
-              : `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, ${0.45 + amp * 0.55})`;
-            matrixCtx.fillText(ch, x, y);
-
-            const speed = isPlaying ? 0.28 + amp * 0.55 : 0.08;
-            matrixDrops[i] += speed;
-            if (y > h && Math.random() > 0.94) {
-              matrixDrops[i] = 0;
-            }
-          }
-        }
-
-        // View 12: 3D Warp Grid Tunnel
-        if (currentStage === 12) {
-          const w = warpCanvas.clientWidth;
-          const h = warpCanvas.clientHeight;
-          warpCtx.clearRect(0, 0, w, h);
-
-          const cx = w / 2;
-          const cy = h * 0.46;
-          const maxR = Math.hypot(w, h) * 0.65;
-
-          // Radial tunnel spokes
-          const spokes = 16;
-          warpCtx.strokeStyle = `rgba(${c2[0]}, ${c2[1]}, ${c2[2]}, 0.32)`;
-          warpCtx.lineWidth = 1.2;
-          for (let i = 0; i < spokes; i++) {
-            const ang = (i / spokes) * Math.PI * 2 + t * 0.2;
-            warpCtx.beginPath();
-            warpCtx.moveTo(cx + Math.cos(ang) * 14, cy + Math.sin(ang) * 14);
-            warpCtx.lineTo(cx + Math.cos(ang) * maxR, cy + Math.sin(ang) * maxR);
-            warpCtx.stroke();
-          }
-
-          // Concentric rushing perspective frames
-          const rings = 9;
-          for (let rIdx = 0; rIdx < rings; rIdx++) {
-            const z = ((rIdx / rings) + t * 0.22) % 1;
-            const scale = Math.pow(z, 2.1);
-            const rx = scale * w * (0.68 + smoothBass * 0.08);
-            const ry = scale * h * (0.62 + smoothBass * 0.08);
-
-            warpCtx.strokeStyle = `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, ${z * 0.85})`;
-            warpCtx.lineWidth = 1.2 + z * 2.2;
-            warpCtx.strokeRect(cx - rx, cy - ry, rx * 2, ry * 2);
-          }
-        }
-
-        // View 13: Cover Focus subtle beat scale
-        if (currentStage === 13) {
           const coverEl = document.getElementById("cover-focus-art");
           if (coverEl) {
-            const s = 1 + smoothBass * 0.065;
+            const s = 1 + beatImpulse * 0.08;
             coverEl.style.transform = `scale(${s.toFixed(3)})`;
           }
         }
 
-        // View 14: Liquid Lava Lamp
-        if (currentStage === 14) {
+        // View 11: Liquid Lava Lamp
+        if (currentStage === 11) {
           const w = lavaCanvas.clientWidth;
           const h = lavaCanvas.clientHeight;
           lavaCtx.clearRect(0, 0, w, h);
@@ -2997,7 +2831,7 @@
           const cols = [c1, c2, c3];
 
           for (const blob of lavaBlobs) {
-            const speedMult = isPlaying ? 1 + smoothBass * 2.2 : 0.35;
+            const speedMult = isPlaying ? 1 + smoothBass * 2.4 : 0.35;
             blob.x += blob.vx * speedMult;
             blob.y += blob.vy * speedMult;
             if (blob.x < 0.14 || blob.x > 0.86) blob.vx *= -1;
@@ -3005,7 +2839,7 @@
 
             const bx = blob.x * w;
             const by = blob.y * h;
-            const br = Math.min(w, h) * blob.r * (1 + smoothBass * 0.35);
+            const br = Math.min(w, h) * blob.r * (1 + smoothBass * 0.38);
             const col = cols[blob.colIdx];
 
             const grad = lavaCtx.createRadialGradient(bx - br * 0.25, by - br * 0.25, br * 0.08, bx, by, br);
@@ -3303,7 +3137,7 @@
       }
     }
 
-    // Multi-Tier Synced Lyrics + All 15 Stage Renderers
+    // Multi-Tier Synced Lyrics + All 12 Stage Renderers
     function setSourceTag(label) {
       const tag = document.getElementById("lyric-source-tag");
       if (!label) {
@@ -3368,7 +3202,7 @@
       setOverlayLyrics(msg);
       updateCodestyleStage([msg], 0, 1);
       if (showConstellationText) {
-        buildConstellationForLine(msg);
+        buildConstellationForLine(msg, 2200);
       } else {
         clearConstellationToBlackHole();
       }
@@ -3573,9 +3407,13 @@
         if (!slice.length) slice.push("intro.sequence()");
         updateCodestyleStage(slice, Math.max(0, activeIdx - start), start + 1);
 
-        // 4. View 4: Constellation (seeded organic star map, or Accretion Black Hole during intro/instrumental)
+        // 4. View 4: Constellation (sequential star path across line duration, or Accretion Black Hole)
         if (activeIdx >= 0 && lyricsData[activeIdx].text) {
-          buildConstellationForLine(lyricsData[activeIdx].text);
+          const nextTime = activeIdx + 1 < lyricsData.length
+            ? lyricsData[activeIdx + 1].timeMs
+            : lyricsData[activeIdx].timeMs + 2800;
+          const durMs = Math.max(1000, nextTime - lyricsData[activeIdx].timeMs);
+          buildConstellationForLine(lyricsData[activeIdx].text, durMs);
         } else {
           clearConstellationToBlackHole();
         }
