@@ -1572,28 +1572,63 @@
       }
     }
 
-    // Build Constellation Star Nodes paced word-by-word across the lyric line's window
-    function buildConstellationForLine(lineText, lineStartMs = currentProgressMs, spanMs = 2800) {
+    // Build Constellation Star Nodes with organic constellation geometry & character-weighted word pacing
+    function buildConstellationForLine(lineText, lineStartMs = currentProgressMs, spanMs = 2600) {
       const words = (lineText || "♪")
         .split(/\s+/)
         .filter(Boolean)
-        .slice(0, 8);
+        .slice(0, 9);
 
       const count = words.length;
-      constellationStartMs = lineStartMs;
-      constellationSpanMs = Math.max(1200, Math.min(6000, spanMs));
+      // Anchor start to the earlier of lineStartMs or currentProgressMs so first word never lags
+      constellationStartMs = Math.min(lineStartMs, currentProgressMs);
+      constellationSpanMs = Math.max(900, Math.min(4800, spanMs));
 
+      // Deterministic seed from line text for unique star constellation shape per line
+      let seed = 0;
+      for (let i = 0; i < lineText.length; i++) {
+        seed = (seed * 31 + lineText.charCodeAt(i)) % 10000;
+      }
+      const rand = (n) => {
+        const x = Math.sin(seed + n * 17.31) * 10000;
+        return x - Math.floor(x);
+      };
+
+      // Weight timing by word length so quick words ("I", "the") pop fast and longer words hold naturally
+      const weights = words.map(w => Math.max(2, w.length + 1));
+      const totalWeight = weights.reduce((a, b) => a + b, 0);
+      let accumWeight = 0;
+
+      // Distribute across 2-3 flowing constellation rows/arcs instead of a rigid sawtooth
       constellationNodes = words.map((word, idx) => {
-        const frac = count === 1 ? 0.5 : idx / (count - 1);
-        const nx = 0.16 + frac * 0.68 + Math.sin(idx * 2.3 + lineText.length) * 0.04;
-        const ny = 0.22 + (idx % 2 === 0 ? 0.16 : 0.44) + Math.cos(idx * 1.9 + lineText.length) * 0.10;
-        const appearAtMs = count === 1 ? 0 : (idx / count) * (constellationSpanMs * 0.82);
+        const appearAtMs = count === 1 ? 0 : (accumWeight / totalWeight) * (constellationSpanMs * 0.78);
+        accumWeight += weights[idx];
+
+        let nx, ny;
+        if (count === 1) {
+          nx = 0.5;
+          ny = 0.48;
+        } else if (count <= 4) {
+          const frac = idx / (count - 1);
+          nx = 0.18 + frac * 0.64 + (rand(idx) - 0.5) * 0.08;
+          ny = 0.34 + Math.sin(frac * Math.PI + seed) * 0.18 + (rand(idx + 10) - 0.5) * 0.10;
+        } else {
+          // Two-tier celestial arc for longer lines so words have plenty of breathing room
+          const half = Math.ceil(count / 2);
+          const isTop = idx < half;
+          const rowIdx = isTop ? idx : idx - half;
+          const rowLen = isTop ? half : count - half;
+          const frac = rowLen === 1 ? 0.5 : rowIdx / (rowLen - 1);
+          nx = (isTop ? 0.16 : 0.22) + frac * 0.62 + (rand(idx) - 0.5) * 0.06;
+          ny = (isTop ? 0.28 : 0.64) + (rand(idx + 20) - 0.5) * 0.12;
+        }
+
         return {
           word,
-          nx: Math.max(0.15, Math.min(0.85, nx)),
+          nx: Math.max(0.14, Math.min(0.86, nx)),
           ny: Math.max(0.18, Math.min(0.82, ny)),
           appearAtMs,
-          popDurMs: 360
+          popDurMs: 260
         };
       });
     }
@@ -1861,9 +1896,9 @@
             starCtx.arc(p.x, p.y, pulseR, 0, Math.PI * 2);
             starCtx.fill();
 
-            const fontSize = Math.round(14 * p.popScale);
+            const fontSize = Math.round(15 * p.popScale);
             starCtx.font = `700 ${fontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
-            const labelY = i % 2 === 0 ? p.y - 14 : p.y + 22;
+            const labelY = p.y < h * 0.24 ? p.y + 24 : (p.y > h * 0.78 ? p.y - 14 : (i % 2 === 0 ? p.y - 14 : p.y + 23));
             starCtx.fillStyle = `rgba(255, 255, 255, ${p.prog})`;
             starCtx.fillText(p.word, p.x, labelY);
           }
@@ -1876,8 +1911,11 @@
       requestAnimationFrame(render);
     }
 
+    let lyricsRequestId = 0;
+
     function handleNewTrackMetadata(item) {
       currentTrackId = item.id;
+      currentProgressMs = 0;
       lastLyricIndex = -2;
       const title = item.name;
       const artist = item.artists.map(a => a.name).join(", ");
@@ -1900,6 +1938,32 @@
     // Playback Polling & UI
     async function pollPlayback() {
       try {
+        // If built-in Web Playback SDK is active, read its exact local clock first
+        if (webPlayer && localDeviceId) {
+          const sdkState = await webPlayer.getCurrentState();
+          if (sdkState && sdkState.track_window?.current_track) {
+            const tr = sdkState.track_window.current_track;
+            isPlaying = !sdkState.paused;
+            if (!isSeeking) {
+              currentProgressMs = sdkState.position || 0;
+            }
+            currentDurationMs = sdkState.duration || 1;
+            document.getElementById("device-status").textContent = "Portal Web Player";
+            document.getElementById("play-pause-btn").textContent = isPlaying ? "⏸" : "▶";
+            updateProgressUI();
+            if (tr.id && tr.id !== currentTrackId) {
+              handleNewTrackMetadata({
+                id: tr.id,
+                name: tr.name,
+                artists: tr.artists,
+                album: tr.album,
+                duration_ms: sdkState.duration
+              });
+            }
+            return;
+          }
+        }
+
         const state = await spFetch("/me/player");
         if (!state || !state.item) {
           document.getElementById("device-status").textContent = localDeviceId ? "Portal Web Player" : "Tap to pick device";
@@ -2227,6 +2291,7 @@
     }
 
     async function fetchSyncedLyrics(track, artist, album, durationMs) {
+      const reqId = ++lyricsRequestId;
       lyricsData = [];
       lyricMode = "none";
       lastLyricIndex = -2;
@@ -2265,6 +2330,8 @@
           } catch {}
         }
 
+        if (reqId !== lyricsRequestId) return;
+
         if (data && data.syncedLyrics) {
           lyricsData = parseLRC(data.syncedLyrics);
           lyricMode = "synced";
@@ -2285,6 +2352,7 @@
           }
         }
       } catch {
+        if (reqId !== lyricsRequestId) return;
         lyricMode = "none";
         updateSourceTag();
         if (!ccEnabled) {
@@ -2489,27 +2557,45 @@
       try {
         let rawItems = [];
 
-        try {
-          const plData = await spFetch(`/playlists/${playlistId}?fields=tracks.items(track(name,uri,artists(name),album(images)))`);
-          rawItems = plData?.tracks?.items || [];
-        } catch {
-          const itemsData = await spFetch(`/playlists/${playlistId}/items?limit=50`);
-          rawItems = itemsData?.items || [];
+        const endpoints = [
+          `/playlists/${playlistId}/items?limit=50`,
+          `/playlists/${playlistId}?fields=tracks.items(track(name,uri,artists(name),album(images)))`,
+          `/playlists/${playlistId}`
+        ];
+
+        for (const ep of endpoints) {
+          try {
+            const d = await spFetch(ep);
+            const candidate =
+              d?.items ||
+              d?.tracks?.items ||
+              d?.tracks ||
+              [];
+            if (Array.isArray(candidate) && candidate.length) {
+              rawItems = candidate;
+              break;
+            }
+          } catch {}
         }
 
         const tracks = rawItems
-          .map(i => i.track || i.item)
-          .filter(t => t && t.uri);
+          .map(i => (i && (i.track || i.item)) || i)
+          .filter(t => t && t.uri && t.name);
 
         list.innerHTML = `
-          <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:8px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:10px; gap:8px;">
             <button class="back-link" style="padding:0;" onclick="loadPlaylists()">← Back to Playlists</button>
             <button class="btn-small" onclick="playUri('${playlistUri}')">▶ Play All</button>
           </div>
         `;
 
         if (!tracks.length) {
-          list.innerHTML += `<div class="list-sub">This playlist has no playable tracks.</div>`;
+          list.innerHTML += `
+            <div class="list-sub" style="line-height:1.5;">
+              Spotify did not return individual track items for this playlist in Web API.<br>
+              Tap <strong>▶ Play All</strong> above to start this playlist directly on your active device.
+            </div>
+          `;
           return;
         }
 
@@ -2521,20 +2607,20 @@
             <img src="${img}" alt="" />
             <div class="list-info">
               <div class="list-title">${escapeHtml(t.name)}</div>
-              <div class="list-sub">${escapeHtml(t.artists.map(a => a.name).join(", "))}</div>
+              <div class="list-sub">${escapeHtml((t.artists || []).map(a => a.name).join(", "))}</div>
             </div>
           `;
           row.onclick = () => playUri(playlistUri, t.uri);
           list.appendChild(row);
         }
       } catch (e) {
-        if (e.status === 403) {
-          document.getElementById("device-status").textContent = "Playing " + name + "...";
-          await playUri(playlistUri);
-        } else {
-          list.innerHTML = `<button class="back-link" onclick="loadPlaylists()">← Back to Playlists</button>`;
-          errBox.innerHTML = `<div class="error-banner">${escapeHtml(e.message)}</div>`;
-        }
+        list.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:10px;">
+            <button class="back-link" style="padding:0;" onclick="loadPlaylists()">← Back to Playlists</button>
+            <button class="btn-small" onclick="playUri('${playlistUri}')">▶ Play All</button>
+          </div>
+        `;
+        errBox.innerHTML = `<div class="error-banner">${escapeHtml(e.message)}</div>`;
       }
     }
 
@@ -2551,7 +2637,7 @@
       list.innerHTML = `<div class="list-sub">Searching Spotify...</div>`;
       searchTimeout = setTimeout(async () => {
         try {
-          const data = await spFetch(`/search?type=track&limit=20&q=${encodeURIComponent(q.trim())}`);
+          const data = await spFetch(`/search?type=track&limit=10&q=${encodeURIComponent(q.trim())}`);
           const tracks = data?.tracks?.items || [];
           if (!tracks.length) {
             list.innerHTML = `<div class="list-sub">No tracks found for "${escapeHtml(q.trim())}".</div>`;
