@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Portal — Multi-Stage Spotify Visualizer & Lyrics</title>
+  <title>Portal v11 — Multi-Stage Spotify Visualizer & Lyrics</title>
   <script src="https://sdk.scdn.co/spotify-player.js"></script>
   <style>
     :root {
@@ -17,6 +17,8 @@
       --c1: #38bdf8;
       --c2: #a855f7;
       --c3: #1ed760;
+      --stage-glow: rgba(56, 189, 248, 0.16);
+      --contrast-boost: 1;
     }
 
     * {
@@ -41,9 +43,9 @@
       inset: -45px;
       background-size: cover;
       background-position: center;
-      filter: blur(60px) brightness(0.36) saturate(1.55);
+      filter: blur(60px) brightness(0.36) saturate(calc(1.55 * var(--contrast-boost))) contrast(var(--contrast-boost));
       transform: scale(1.12);
-      transition: background-image 0.9s ease;
+      transition: background-image 0.9s ease, filter 0.35s ease;
       z-index: 0;
       pointer-events: none;
     }
@@ -192,14 +194,16 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
+      gap: 6px;
       z-index: 6;
     }
 
     .top-actions {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
     }
 
     .icon-btn {
@@ -207,33 +211,34 @@
       backdrop-filter: blur(12px);
       border: 1px solid var(--border);
       color: #fff;
-      width: 38px;
-      height: 38px;
+      width: 34px;
+      height: 34px;
       border-radius: 50%;
-      font-size: 0.95rem;
+      font-size: 0.85rem;
       font-weight: 700;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: background 0.2s, border-color 0.2s, color 0.2s;
+      transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.25s;
     }
 
     .icon-btn.active {
       background: rgba(30, 215, 96, 0.22);
       border-color: var(--accent);
       color: var(--accent);
+      box-shadow: 0 0 12px rgba(30, 215, 96, 0.28);
     }
 
     .status-pill {
-      font-size: 0.74rem;
+      font-size: 0.72rem;
       color: var(--muted);
       background: var(--surface);
       backdrop-filter: blur(12px);
-      padding: 6px 12px;
+      padding: 6px 10px;
       border-radius: 999px;
       border: 1px solid var(--border);
-      max-width: 44%;
+      max-width: 34%;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -303,9 +308,9 @@
 
     .stage-pill.active {
       background: rgba(255, 255, 255, 0.18);
-      border-color: rgba(255, 255, 255, 0.42);
+      border-color: var(--c1);
       color: #fff;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+      box-shadow: 0 2px 14px var(--stage-glow);
     }
 
     /* VIEW 0: Fluid Sphere Equalizer */
@@ -393,6 +398,8 @@
       flex-direction: column;
       gap: 20px;
       scroll-behavior: smooth;
+      border-radius: 22px;
+      box-shadow: inset 0 0 42px var(--stage-glow);
       mask-image: linear-gradient(to bottom, transparent 0%, black 18%, black 82%, transparent 100%);
       -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 18%, black 82%, transparent 100%);
     }
@@ -424,7 +431,7 @@
       color: #ffffff;
       filter: blur(0);
       transform: scale(1.03);
-      text-shadow: 0 0 26px rgba(255, 255, 255, 0.42), 0 4px 18px rgba(0, 0, 0, 0.65);
+      text-shadow: 0 0 26px var(--stage-glow), 0 4px 18px rgba(0, 0, 0, 0.65);
     }
 
     .k-line.past {
@@ -444,6 +451,8 @@
       justify-content: center;
       overflow: hidden;
       border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 0 38px var(--stage-glow), inset 0 0 28px var(--stage-glow);
     }
 
     #wave-canvas {
@@ -508,7 +517,7 @@
       background: rgba(8, 10, 16, 0.88);
       backdrop-filter: blur(22px);
       border: 1px solid rgba(255, 255, 255, 0.22);
-      box-shadow: 0 0 32px rgba(56, 189, 248, 0.16), inset 0 0 24px rgba(255, 255, 255, 0.04);
+      box-shadow: 0 0 36px var(--stage-glow), inset 0 0 26px var(--stage-glow);
       border-radius: 16px;
       padding: 14px 16px;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
@@ -564,7 +573,7 @@
       align-items: flex-start;
       gap: 10px;
       font-size: 0.82rem;
-      line-height: 1.45;
+      line-height: 1.48;
       color: rgba(255, 255, 255, 0.35);
       transition: all 0.25s ease;
       min-width: 0;
@@ -574,20 +583,21 @@
       color: #ffffff;
       font-size: 0.94rem;
       font-weight: 700;
-      text-shadow: 0 0 14px rgba(255, 255, 255, 0.45);
+      text-shadow: 0 0 14px var(--stage-glow);
     }
 
     .code-text {
       flex: 1;
       min-width: 0;
-      overflow-wrap: anywhere;
-      word-break: break-word;
+      white-space: normal;
+      word-break: normal;
+      overflow-wrap: normal;
     }
 
     .code-num {
       color: var(--c1);
       font-size: 0.72rem;
-      opacity: 0.7;
+      opacity: 0.75;
       user-select: none;
       min-width: 22px;
       padding-top: 2px;
@@ -616,7 +626,8 @@
       border-radius: 22px;
       overflow: hidden;
       background: radial-gradient(circle at 50% 50%, rgba(16, 20, 34, 0.55), rgba(5, 6, 10, 0.82));
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 0 36px var(--stage-glow);
     }
 
     #constellation-canvas {
@@ -644,7 +655,7 @@
       border-radius: 12px;
       object-fit: cover;
       background: var(--surface);
-      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5), 0 0 18px var(--stage-glow);
       flex-shrink: 0;
     }
 
@@ -777,19 +788,19 @@
 
     .tabs {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       margin-bottom: 12px;
     }
 
     .tab-btn {
       flex: 1;
-      padding: 9px 6px;
+      padding: 9px 4px;
       border-radius: 10px;
       border: 1px solid var(--border);
       background: var(--surface);
       color: var(--muted);
       font-weight: 600;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       cursor: pointer;
     }
 
@@ -889,7 +900,7 @@
   <div id="backdrop-overlay"></div>
 
   <div id="setup-screen">
-    <div class="brand">Portal</div>
+    <div class="brand">Portal v11</div>
     <div class="subtitle">5-mode fluid sphere equalizer, Codestyle, Constellation & kinetic lyric stages.</div>
 
     <div class="card">
@@ -916,11 +927,14 @@
 
   <div id="player-screen">
     <div class="top-bar">
-      <button class="icon-btn" onclick="openDrawer('playlists')" title="Playlists & Search">☰</button>
+      <button class="icon-btn" onclick="openDrawer('playlists')" title="Library, Recent & Search">☰</button>
       <div class="status-pill" id="device-status" onclick="openDrawer('devices')" title="Tap to switch playback device">Connecting...</div>
       <div class="top-actions">
-        <button class="icon-btn" id="cc-btn" onclick="toggleAutoCC()" title="Auto-CC Live Captions" style="font-size:0.75rem;">CC</button>
+        <button class="icon-btn" id="cc-btn" onclick="toggleAutoCC()" title="Auto-CC Live Captions" style="font-size:0.7rem;">CC</button>
         <button class="icon-btn" id="mic-btn" onclick="toggleMicEqualizer()" title="Live Mic Audio Equalizer">🎙</button>
+        <button class="icon-btn" id="wakelock-btn" onclick="toggleWakeLock()" title="Keep Screen Awake">☀</button>
+        <button class="icon-btn" id="cycle-btn" onclick="toggleStageAutoCycle()" title="Auto-Cycle Stages Between Tracks">⟳</button>
+        <button class="icon-btn" id="mood-btn" onclick="cycleColorMood()" title="Album Color Mood / Contrast Boost">◐</button>
         <button class="icon-btn" onclick="logout()" title="Disconnect">⎋</button>
       </div>
     </div>
@@ -975,7 +989,7 @@
         </div>
       </div>
 
-      <!-- Screen 4: Constellation Star-Node Lyrics + Black Hole EQ Fallback -->
+      <!-- Screen 4: Constellation Star-Node Lyrics + Accretion Black Hole Fallback -->
       <div class="stage-view" id="view-constellation">
         <div class="constellation-wrap" onclick="togglePlay()">
           <canvas id="constellation-canvas"></canvas>
@@ -1026,6 +1040,7 @@
 
     <div class="tabs">
       <button class="tab-btn active" id="tab-playlists" onclick="switchTab('playlists')">Playlists</button>
+      <button class="tab-btn" id="tab-recent" onclick="switchTab('recent')">Recent</button>
       <button class="tab-btn" id="tab-search" onclick="switchTab('search')">Search</button>
       <button class="tab-btn" id="tab-devices" onclick="switchTab('devices')">Devices</button>
     </div>
@@ -1072,10 +1087,26 @@
     let currentStage = 0;
     const TOTAL_STAGES = 5;
 
-    // Constellation star nodes (v6 full-line reveal) + Black Hole EQ fallback when no lyrics are active
+    // Auto-cycle stages between tracks & Color Mood
+    let autoCycleStages = false;
+    let colorMoodMode = 0; // 0 = Balanced, 1 = Neon Vivid, 2 = Deep Moody
+    let rawAlbumColors = [
+      [56, 189, 248],
+      [168, 85, 247],
+      [30, 215, 96]
+    ];
+
+    // Screen Wake Lock
+    let wakeLockSentinel = null;
+
+    // Local Recent / Quick-Play Tracks
+    let recentTracks = JSON.parse(localStorage.getItem("portal_recent_tracks") || "[]");
+
+    // Constellation star nodes (full-line reveal, all words included) + Warped Accretion-Disk Black Hole fallback
     let constellationNodes = [];
     let constellationHasLyrics = false;
-    let constellationBgStars = Array.from({ length: 36 }, () => ({
+    let shockwaveRing = 0;
+    let constellationBgStars = Array.from({ length: 42 }, () => ({
       x: Math.random(),
       y: Math.random(),
       r: 0.6 + Math.random() * 1.4,
@@ -1115,6 +1146,93 @@
     let analyserNode = null;
     let micStream = null;
     let freqDataArray = null;
+
+    function applyColorMoodPalette() {
+      const boost = (rgb, satMult, valMult) => {
+        const avg = (rgb[0] + rgb[1] + rgb[2]) / 3;
+        return rgb.map(ch => {
+          const saturated = avg + (ch - avg) * satMult;
+          return Math.max(12, Math.min(255, Math.round(saturated * valMult)));
+        });
+      };
+
+      if (colorMoodMode === 1) {
+        // Neon Vivid
+        targetPalette = rawAlbumColors.map(c => boost(c, 1.45, 1.15));
+        document.documentElement.style.setProperty("--contrast-boost", "1.22");
+      } else if (colorMoodMode === 2) {
+        // Deep Moody
+        targetPalette = rawAlbumColors.map(c => boost(c, 0.92, 0.72));
+        document.documentElement.style.setProperty("--contrast-boost", "0.92");
+      } else {
+        // Balanced
+        targetPalette = rawAlbumColors.map(c => [...c]);
+        document.documentElement.style.setProperty("--contrast-boost", "1");
+      }
+
+      const [p1, p2, p3] = targetPalette;
+      document.documentElement.style.setProperty("--c1", `rgb(${p1[0]},${p1[1]},${p1[2]})`);
+      document.documentElement.style.setProperty("--c2", `rgb(${p2[0]},${p2[1]},${p2[2]})`);
+      document.documentElement.style.setProperty("--c3", `rgb(${p3[0]},${p3[1]},${p3[2]})`);
+      document.documentElement.style.setProperty("--stage-glow", `rgba(${p1[0]},${p1[1]},${p1[2]},0.22)`);
+    }
+
+    function cycleColorMood() {
+      colorMoodMode = (colorMoodMode + 1) % 3;
+      applyColorMoodPalette();
+      const btn = document.getElementById("mood-btn");
+      btn.classList.toggle("active", colorMoodMode !== 0);
+      const titles = ["Mood: Balanced (Tap for Vivid)", "Mood: Vivid Boost (Tap for Moody)", "Mood: Deep Moody (Tap for Balanced)"];
+      btn.title = titles[colorMoodMode];
+    }
+
+    function toggleStageAutoCycle() {
+      autoCycleStages = !autoCycleStages;
+      const btn = document.getElementById("cycle-btn");
+      btn.classList.toggle("active", autoCycleStages);
+      btn.title = autoCycleStages ? "Auto-Cycle Stages: ON" : "Auto-Cycle Stages: OFF";
+    }
+
+    async function toggleWakeLock() {
+      const btn = document.getElementById("wakelock-btn");
+      if (!("wakeLock" in navigator)) {
+        alert("Screen Wake Lock isn't supported in this browser.");
+        return;
+      }
+
+      if (wakeLockSentinel) {
+        try { await wakeLockSentinel.release(); } catch {}
+        wakeLockSentinel = null;
+        btn.classList.remove("active");
+        return;
+      }
+
+      try {
+        wakeLockSentinel = await navigator.wakeLock.request("screen");
+        btn.classList.add("active");
+        wakeLockSentinel.addEventListener("release", () => {
+          wakeLockSentinel = null;
+          btn.classList.remove("active");
+        });
+      } catch (err) {
+        alert("Could not keep screen awake: " + err.message);
+      }
+    }
+
+    function recordRecentTrack(item) {
+      if (!item || !item.id || !item.uri) return;
+      const entry = {
+        id: item.id,
+        uri: item.uri,
+        name: item.name || "Unknown Track",
+        artist: (item.artists || []).map(a => a.name).join(", "),
+        art: item.album?.images?.[0]?.url || ""
+      };
+      recentTracks = [entry, ...recentTracks.filter(t => t.id !== entry.id)].slice(0, 20);
+      try {
+        localStorage.setItem("portal_recent_tracks", JSON.stringify(recentTracks));
+      } catch {}
+    }
 
     // Stage Switcher + Horizontal Swipe Gesture
     function setStage(idx) {
@@ -1339,6 +1457,7 @@
           if (track && track.id !== currentTrackId) {
             handleNewTrackMetadata({
               id: track.id,
+              uri: track.uri,
               name: track.name,
               artists: track.artists,
               album: track.album,
@@ -1414,7 +1533,7 @@
         const cleaned = transcript.trim();
         if (cleaned) {
           const words = cleaned.split(/\s+/);
-          const displayLine = words.length > 10 ? "… " + words.slice(-10).join(" ") : cleaned;
+          const displayLine = words.length > 12 ? "… " + words.slice(-12).join(" ") : cleaned;
           setSourceTag("LIVE AUTO-CC");
           setSingleLyric(displayLine, false);
           document.getElementById("sonic-current").textContent = displayLine;
@@ -1511,14 +1630,12 @@
             const c1 = samples[0];
             const c2 = samples[Math.floor(samples.length * 0.35)];
             const c3 = samples[Math.floor(samples.length * 0.7)];
-            targetPalette = [
+            rawAlbumColors = [
               [c1.r, c1.g, c1.b],
               [c2.r, c2.g, c2.b],
               [c3.r, c3.g, c3.b]
             ];
-            document.documentElement.style.setProperty("--c1", `rgb(${c1.r},${c1.g},${c1.b})`);
-            document.documentElement.style.setProperty("--c2", `rgb(${c2.r},${c2.g},${c2.b})`);
-            document.documentElement.style.setProperty("--c3", `rgb(${c3.r},${c3.g},${c3.b})`);
+            applyColorMoodPalette();
           }
         } catch {}
       };
@@ -1582,7 +1699,7 @@
       }
     }
 
-    // Build Constellation Star Nodes (v6 full-line reveal)
+    // Build Constellation Star Nodes (full line kept intact, no word cap, multi-row spread so nothing clips)
     function buildConstellationForLine(lineText) {
       const clean = (lineText || "").trim();
       if (!clean || clean === "♪" || clean === "•••") {
@@ -1591,7 +1708,7 @@
         return;
       }
 
-      const words = clean.split(/\s+/).filter(Boolean).slice(0, 7);
+      const words = clean.split(/\s+/).filter(Boolean);
       if (!words.length) {
         constellationHasLyrics = false;
         constellationNodes = [];
@@ -1600,16 +1717,25 @@
 
       constellationHasLyrics = true;
       const count = words.length;
+      const perRow = count > 8 ? 5 : count > 4 ? 4 : count;
+      const rows = Math.max(1, Math.ceil(count / perRow));
+
       constellationNodes = words.map((word, idx) => {
-        const progress = count === 1 ? 0.5 : idx / (count - 1);
-        const nx = 0.16 + progress * 0.68 + (Math.sin(idx * 2.3 + clean.length) * 0.05);
-        const ny = 0.24 + ((idx % 2 === 0 ? 0.16 : 0.44) + Math.cos(idx * 1.9 + clean.length) * 0.12);
+        const row = Math.floor(idx / perRow);
+        const col = idx % perRow;
+        const itemsInThisRow = row === rows - 1 ? count - row * perRow : perRow;
+        const hProg = itemsInThisRow === 1 ? 0.5 : col / (itemsInThisRow - 1);
+        const vProg = rows === 1 ? 0.5 : row / (rows - 1);
+
+        const nx = 0.16 + hProg * 0.68 + Math.sin(idx * 2.1 + clean.length) * 0.025;
+        const ny = (rows === 1 ? 0.42 : 0.22 + vProg * 0.54) + Math.cos(idx * 1.7 + clean.length) * 0.03;
+
         return {
           word,
           nx: Math.max(0.14, Math.min(0.86, nx)),
-          ny: Math.max(0.18, Math.min(0.82, ny)),
+          ny: Math.max(0.16, Math.min(0.84, ny)),
           spawnTime: performance.now(),
-          delay: idx * 70
+          delay: idx * 55
         };
       });
     }
@@ -1619,7 +1745,7 @@
       constellationNodes = [];
     }
 
-    // Visual Render Loop for Orb EQ (View 0), Wave Ribbons (View 2) & Constellation / Black Hole EQ (View 4)
+    // Visual Render Loop for Orb EQ (View 0), Wave Ribbons (View 2) & Constellation / Warped Black Hole EQ (View 4)
     function initVisualizers() {
       const orbCanvas = document.getElementById("sphere-canvas");
       const orbCtx = orbCanvas.getContext("2d");
@@ -1658,7 +1784,7 @@
       function render() {
         for (let i = 0; i < 3; i++) {
           for (let j = 0; j < 3; j++) {
-            spherePalette[i][j] = lerp(spherePalette[i][j], targetPalette[i][j], 0.04);
+            spherePalette[i][j] = lerp(spherePalette[i][j], targetPalette[i][j], 0.05);
           }
         }
 
@@ -1669,15 +1795,23 @@
         for (let i = 12; i < 24; i++) mSum += eqSpectrum[i];
         for (let i = 24; i < 36; i++) hSum += eqSpectrum[i];
 
-        smoothBass = lerp(smoothBass, bSum / 12 + lyricPulse * 0.5, 0.22);
+        const prevBass = smoothBass;
+        smoothBass = lerp(smoothBass, bSum / 12 + lyricPulse * 0.5, 0.24);
         smoothMid = lerp(smoothMid, mSum / 12, 0.22);
         smoothHigh = lerp(smoothHigh, hSum / 12, 0.22);
+
+        // Trigger BPM/bass shockwave ring on strong bass hits
+        if (smoothBass > 0.56 && smoothBass - prevBass > 0.05 && shockwaveRing < 0.15) {
+          shockwaveRing = 1.0;
+        }
+        shockwaveRing = Math.max(0, shockwaveRing - 0.022);
+
         lyricPulse *= 0.88;
-        t += isPlaying || micActive ? 0.03 : 0.008;
+        t += isPlaying || micActive ? 0.032 : 0.008;
 
         const [c1, c2, c3] = spherePalette.map(rgb => rgb.map(v => Math.round(v)));
 
-        // View 0: Fluid Sphere Equalizer
+        // View 0: Fluid Sphere Equalizer + BPM/Bass Shockwave
         if (currentStage === 0) {
           const w = orbCanvas.clientWidth;
           const h = orbCanvas.clientHeight;
@@ -1687,9 +1821,20 @@
 
           orbCtx.clearRect(0, 0, w, h);
 
+          if (shockwaveRing > 0.01) {
+            const waveR = baseR * (1.1 + (1 - shockwaveRing) * 0.75);
+            orbCtx.save();
+            orbCtx.strokeStyle = `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, ${shockwaveRing * 0.55})`;
+            orbCtx.lineWidth = 2.5 * shockwaveRing;
+            orbCtx.beginPath();
+            orbCtx.arc(cx, cy, waveR, 0, Math.PI * 2);
+            orbCtx.stroke();
+            orbCtx.restore();
+          }
+
           const glow = orbCtx.createRadialGradient(cx, cy, baseR * 0.2, cx, cy, baseR * (1.45 + smoothBass * 0.35));
-          glow.addColorStop(0, `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, 0.36)`);
-          glow.addColorStop(0.55, `rgba(${c2[0]}, ${c2[1]}, ${c2[2]}, 0.16)`);
+          glow.addColorStop(0, `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, 0.38)`);
+          glow.addColorStop(0.55, `rgba(${c2[0]}, ${c2[1]}, ${c2[2]}, 0.18)`);
           glow.addColorStop(1, "rgba(0, 0, 0, 0)");
           orbCtx.fillStyle = glow;
           orbCtx.beginPath();
@@ -1721,9 +1866,9 @@
           orbCtx.restore();
 
           const layers = [
-            { color: c1, alpha: 0.60, speed: 1.0, freq1: 3, freq2: 5, phase: 0, scale: 1.02, band: smoothBass },
-            { color: c2, alpha: 0.54, speed: -1.35, freq1: 4, freq2: 6, phase: 2.1, scale: 0.95, band: smoothMid },
-            { color: c3, alpha: 0.50, speed: 1.7, freq1: 6, freq2: 8, phase: 4.2, scale: 0.88, band: smoothHigh }
+            { color: c1, alpha: 0.62, speed: 1.0, freq1: 3, freq2: 5, phase: 0, scale: 1.02, band: smoothBass },
+            { color: c2, alpha: 0.56, speed: -1.35, freq1: 4, freq2: 6, phase: 2.1, scale: 0.95, band: smoothMid },
+            { color: c3, alpha: 0.52, speed: 1.7, freq1: 6, freq2: 8, phase: 4.2, scale: 0.88, band: smoothHigh }
           ];
 
           orbCtx.save();
@@ -1815,13 +1960,13 @@
           waveCtx.restore();
         }
 
-        // View 4: Constellation Star-Node Lyrics (or Black Hole + Album-Colored EQ Ring when no lyrics)
+        // View 4: Constellation Star-Node Lyrics OR Interstellar-style Warped Accretion-Disk Black Hole
         if (currentStage === 4) {
           const w = starCanvas.clientWidth;
           const h = starCanvas.clientHeight;
           starCtx.clearRect(0, 0, w, h);
 
-          // Twinkling background starfield
+          // Twinkling starfield
           for (const s of constellationBgStars) {
             const alpha = 0.22 + 0.45 * (0.5 + 0.5 * Math.sin(t * 1.4 + s.twinkle));
             starCtx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
@@ -1831,65 +1976,113 @@
           }
 
           if (!constellationHasLyrics || !constellationNodes.length) {
-            // Black Hole + Album-Colored EQ Ring
+            // Interstellar-style warped accretion-disk black hole tinted to album colors + EQ pulse
             const cx = w / 2;
             const cy = h / 2;
-            const holeR = Math.min(w, h) * (0.19 + smoothBass * 0.045);
+            const holeR = Math.min(w, h) * (0.15 + smoothBass * 0.032);
+            const diskRx = Math.min(w, h) * (0.44 + smoothBass * 0.06);
+            const diskRy = holeR * (0.44 + smoothMid * 0.14);
+            const tilt = -0.22 + Math.sin(t * 0.5) * 0.03;
 
-            // Outer album-colored accretion aura
-            const aura = starCtx.createRadialGradient(cx, cy, holeR * 0.85, cx, cy, holeR * (1.75 + smoothBass * 0.4));
-            aura.addColorStop(0, `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, 0.55)`);
-            aura.addColorStop(0.45, `rgba(${c2[0]}, ${c2[1]}, ${c2[2]}, 0.24)`);
-            aura.addColorStop(1, "rgba(0, 0, 0, 0)");
-            starCtx.fillStyle = aura;
+            starCtx.save();
+            starCtx.translate(cx, cy);
+
+            // Shockwave ripple on bass hits
+            if (shockwaveRing > 0.01) {
+              const swR = holeR * (1.2 + (1 - shockwaveRing) * 1.5);
+              starCtx.strokeStyle = `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, ${shockwaveRing * 0.5})`;
+              starCtx.lineWidth = 2 * shockwaveRing;
+              starCtx.beginPath();
+              starCtx.ellipse(0, 0, swR * 1.55, swR * 0.55, tilt, 0, Math.PI * 2);
+              starCtx.stroke();
+            }
+
+            // Gravitational lensing halo arching over top and bottom of event horizon
+            const haloGrad = starCtx.createRadialGradient(0, 0, holeR * 0.7, 0, 0, diskRx * 1.15);
+            haloGrad.addColorStop(0, `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, 0.0)`);
+            haloGrad.addColorStop(0.45, `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, ${0.28 + smoothBass * 0.25})`);
+            haloGrad.addColorStop(0.75, `rgba(${c2[0]}, ${c2[1]}, ${c2[2]}, ${0.14 + smoothMid * 0.15})`);
+            haloGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+            starCtx.fillStyle = haloGrad;
             starCtx.beginPath();
-            starCtx.arc(cx, cy, holeR * 2.2, 0, Math.PI * 2);
+            starCtx.arc(0, 0, diskRx * 1.18, 0, Math.PI * 2);
             starCtx.fill();
 
-            // Continuous EQ-modulated photon ring around the black hole
-            const ringPts = 120;
+            // Upper lensed arch over the black hole
             starCtx.save();
-            starCtx.beginPath();
-            for (let i = 0; i <= ringPts; i++) {
-              const frac = i / ringPts;
-              const angle = frac * Math.PI * 2 - Math.PI / 2;
-              const bandIdx = Math.floor(Math.abs(Math.sin(frac * Math.PI)) * (EQ_BANDS - 1));
+            starCtx.rotate(tilt);
+            for (let ring = 0; ring < 3; ring++) {
+              const bandIdx = (ring * 10 + Math.floor(t * 6)) % EQ_BANDS;
               const amp = eqSpectrum[bandIdx];
-              const wobble = Math.sin(angle * 4 + t * 2.2) * (2 + smoothMid * 5);
-              const r = holeR + 4 + amp * (holeR * 0.34) + wobble;
-              const px = cx + Math.cos(angle) * r;
-              const py = cy + Math.sin(angle) * r;
-              if (i === 0) starCtx.moveTo(px, py);
-              else starCtx.lineTo(px, py);
+              const rScale = 1 + ring * 0.18 + amp * 0.12;
+              starCtx.strokeStyle = ring === 0
+                ? `rgba(255, 255, 255, ${0.75 + smoothBass * 0.25})`
+                : ring === 1
+                  ? `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, ${0.72 + amp * 0.28})`
+                  : `rgba(${c2[0]}, ${c2[1]}, ${c2[2]}, ${0.48 + amp * 0.3})`;
+              starCtx.lineWidth = (4.5 - ring) * (0.85 + smoothBass * 0.65);
+              starCtx.shadowColor = `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, 0.85)`;
+              starCtx.shadowBlur = 14 + smoothBass * 14;
+              starCtx.beginPath();
+              starCtx.ellipse(0, -holeR * 0.15, holeR * (1.15 * rScale), holeR * (1.42 * rScale), 0, Math.PI * 1.05, Math.PI * 1.95);
+              starCtx.stroke();
             }
-            starCtx.closePath();
-            starCtx.strokeStyle = `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, 0.92)`;
-            starCtx.lineWidth = 2.6 + smoothBass * 1.6;
-            starCtx.shadowColor = `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, 0.85)`;
-            starCtx.shadowBlur = 16;
-            starCtx.stroke();
-
-            // Secondary inner photon ring in second album accent color
-            starCtx.beginPath();
-            starCtx.arc(cx, cy, holeR + 1.5, 0, Math.PI * 2);
-            starCtx.strokeStyle = `rgba(${c2[0]}, ${c2[1]}, ${c2[2]}, 0.65)`;
-            starCtx.lineWidth = 1.4;
-            starCtx.stroke();
             starCtx.restore();
 
-            // Event horizon pitch-black core
-            starCtx.fillStyle = "#030407";
+            // Pitch-black event horizon core
+            starCtx.fillStyle = "#020305";
             starCtx.beginPath();
-            starCtx.arc(cx, cy, holeR, 0, Math.PI * 2);
+            starCtx.arc(0, 0, holeR, 0, Math.PI * 2);
             starCtx.fill();
+
+            // Tilted equatorial accretion disk cutting across with bright core & EQ ripples
+            starCtx.save();
+            starCtx.rotate(tilt);
+            starCtx.globalCompositeOperation = "screen";
+
+            const diskGrad = starCtx.createLinearGradient(-diskRx, 0, diskRx, 0);
+            diskGrad.addColorStop(0, `rgba(${c2[0]}, ${c2[1]}, ${c2[2]}, 0.08)`);
+            diskGrad.addColorStop(0.25, `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, ${0.65 + smoothBass * 0.3})`);
+            diskGrad.addColorStop(0.5, `rgba(255, 255, 255, ${0.88 + smoothBass * 0.12})`);
+            diskGrad.addColorStop(0.75, `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, ${0.65 + smoothMid * 0.3})`);
+            diskGrad.addColorStop(1, `rgba(${c3[0]}, ${c3[1]}, ${c3[2]}, 0.08)`);
+
+            starCtx.strokeStyle = diskGrad;
+            starCtx.lineWidth = 6 + smoothBass * 10;
+            starCtx.shadowColor = `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, 0.9)`;
+            starCtx.shadowBlur = 18 + smoothBass * 16;
+
+            starCtx.beginPath();
+            const steps = 64;
+            for (let i = 0; i <= steps; i++) {
+              const u = (i / steps) * 2 - 1; // -1 to 1
+              const bandIdx = Math.min(EQ_BANDS - 1, Math.floor(Math.abs(u) * (EQ_BANDS - 1)));
+              const amp = eqSpectrum[bandIdx];
+              const x = u * diskRx;
+              const warp = Math.sin(u * Math.PI * 2 + t * 2.2) * (2 + amp * 7);
+              const y = warp;
+              if (i === 0) starCtx.moveTo(x, y);
+              else starCtx.lineTo(x, y);
+            }
+            starCtx.stroke();
+
+            // Lower warped ring curve beneath the horizon
+            starCtx.strokeStyle = `rgba(${c1[0]}, ${c1[1]}, ${c1[2]}, ${0.52 + smoothMid * 0.35})`;
+            starCtx.lineWidth = 2.6 + smoothBass * 3;
+            starCtx.beginPath();
+            starCtx.ellipse(0, holeR * 0.12, diskRx * 0.72, diskRy * 1.15, 0, 0.1, Math.PI - 0.1);
+            starCtx.stroke();
+
+            starCtx.restore();
+            starCtx.restore();
           } else {
-            // Original v6 full-line Constellation star nodes
+            // Full-line Constellation star nodes (all words preserved, auto-sized to prevent clipping)
             const now = performance.now();
             const pts = constellationNodes.map((node, i) => {
               const elapsed = Math.max(0, now - node.spawnTime - node.delay);
               const prog = Math.min(1, elapsed / 240);
-              const floatX = Math.sin(t * 0.9 + i * 1.7) * 5;
-              const floatY = Math.cos(t * 1.1 + i * 2.1) * 5;
+              const floatX = Math.sin(t * 0.9 + i * 1.7) * 4;
+              const floatY = Math.cos(t * 1.1 + i * 2.1) * 4;
               return {
                 word: node.word,
                 x: node.nx * w + floatX,
@@ -1915,8 +2108,10 @@
               starCtx.stroke();
             }
 
-            starCtx.font = "700 15px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+            const fontSize = pts.length > 8 ? 12 : pts.length > 5 ? 13.5 : 15;
+            starCtx.font = `700 ${fontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
             starCtx.textAlign = "center";
+
             for (let i = 0; i < pts.length; i++) {
               const p = pts[i];
               if (p.prog <= 0) continue;
@@ -1936,9 +2131,11 @@
               starCtx.arc(p.x, p.y, pulseR, 0, Math.PI * 2);
               starCtx.fill();
 
-              const labelY = i % 2 === 0 ? p.y - 14 : p.y + 22;
+              const halfW = starCtx.measureText(p.word).width / 2 + 6;
+              const clampedX = Math.max(halfW, Math.min(w - halfW, p.x));
+              const labelY = i % 2 === 0 ? p.y - 12 : p.y + 20;
               starCtx.fillStyle = `rgba(255, 255, 255, ${0.95 * p.prog})`;
-              starCtx.fillText(p.word, p.x, labelY);
+              starCtx.fillText(p.word, clampedX, labelY);
             }
             starCtx.restore();
           }
@@ -1951,6 +2148,7 @@
     }
 
     function handleNewTrackMetadata(item) {
+      const isTrackChange = currentTrackId !== null && currentTrackId !== item.id;
       currentTrackId = item.id;
       currentProgressMs = 0;
       lastLyricIndex = -2;
@@ -1958,6 +2156,12 @@
       const artist = item.artists.map(a => a.name).join(", ");
       const album = item.album?.name || "";
       const art = item.album?.images?.[0]?.url || "";
+
+      recordRecentTrack(item);
+
+      if (isTrackChange && autoCycleStages) {
+        setStage(currentStage + 1);
+      }
 
       document.getElementById("track-title").textContent = title;
       document.getElementById("track-artist").textContent = artist;
@@ -1990,6 +2194,7 @@
             if (tr.id && tr.id !== currentTrackId) {
               handleNewTrackMetadata({
                 id: tr.id,
+                uri: tr.uri,
                 name: tr.name,
                 artists: tr.artists,
                 album: tr.album,
@@ -2085,6 +2290,7 @@
         if (webPlayer && localDeviceId) {
           await webPlayer.togglePlay();
           lyricPulse = 0.35;
+          shockwaveRing = 0.7;
           setTimeout(pollPlayback, 300);
           return;
         }
@@ -2095,6 +2301,7 @@
         isPlaying = !isPlaying;
         document.getElementById("play-pause-btn").textContent = isPlaying ? "⏸" : "▶";
         lyricPulse = 0.35;
+        shockwaveRing = 0.7;
         setTimeout(pollPlayback, 400);
       } catch (e) {
         if (e.status === 404) {
@@ -2111,12 +2318,14 @@
           if (action === "next") await webPlayer.nextTrack();
           else await webPlayer.previousTrack();
           lyricPulse = 0.4;
+          shockwaveRing = 0.85;
           setTimeout(pollPlayback, 350);
           return;
         }
 
         await spFetch("/me/player/" + action, { method: "POST" });
         lyricPulse = 0.4;
+        shockwaveRing = 0.85;
         setTimeout(pollPlayback, 450);
       } catch (e) {
         alert("Playback error: " + e.message);
@@ -2244,11 +2453,22 @@
       }, 130);
     }
 
+    function formatCodestyleLine(txt) {
+      const cleaned = (txt || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9'\s]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+      if (!cleaned) return "instrumental.pause()";
+      // Keep dot-joined phrasing intact while allowing normal whitespace wrapping if needed
+      return cleaned.split(" ").join(".");
+    }
+
     function updateCodestyleStage(linesArray, activeOffset, startLineNum = 1) {
       const body = document.getElementById("code-body");
       body.innerHTML = linesArray.map((txt, idx) => {
         const isAct = idx === activeOffset;
-        const formatted = txt.toLowerCase().replace(/[^a-z0-9'\s]/g, "").trim().replace(/\s+/g, ".") || "instrumental.pause()";
+        const formatted = formatCodestyleLine(txt);
         const num = String(startLineNum + idx).padStart(2, "0");
         return `
           <div class="code-line-row ${isAct ? "active" : ""}">
@@ -2469,7 +2689,7 @@
         if (!slice.length) slice.push("intro.sequence()");
         updateCodestyleStage(slice, Math.max(0, activeIdx - start), start + 1);
 
-        // 4. View 4: Constellation (v6 full-line reveal, or Black Hole EQ during intro/instrumental)
+        // 4. View 4: Constellation (full line reveal, or Accretion Black Hole during intro/instrumental)
         if (activeIdx >= 0 && lyricsData[activeIdx].text) {
           buildConstellationForLine(lyricsData[activeIdx].text);
         } else {
@@ -2482,7 +2702,7 @@
       return str.replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
     }
 
-    // Drawer: Playlists, Search & Devices
+    // Drawer: Playlists, Recent, Search & Devices
     function openDrawer(defaultTab = "playlists") {
       document.getElementById("drawer").classList.add("open");
       switchTab(defaultTab);
@@ -2494,6 +2714,7 @@
 
     function switchTab(tab) {
       document.getElementById("tab-playlists").classList.toggle("active", tab === "playlists");
+      document.getElementById("tab-recent").classList.toggle("active", tab === "recent");
       document.getElementById("tab-search").classList.toggle("active", tab === "search");
       document.getElementById("tab-devices").classList.toggle("active", tab === "devices");
       document.getElementById("search-input").style.display = tab === "search" ? "block" : "none";
@@ -2501,11 +2722,36 @@
 
       if (tab === "playlists") {
         loadPlaylists();
+      } else if (tab === "recent") {
+        loadRecentTracks();
       } else if (tab === "devices") {
         loadDevices();
       } else {
         document.getElementById("drawer-list").innerHTML = `<div class="info-card">Type a song or artist above to search Spotify and play individual tracks.</div>`;
         document.getElementById("search-input").focus();
+      }
+    }
+
+    function loadRecentTracks() {
+      const list = document.getElementById("drawer-list");
+      if (!recentTracks.length) {
+        list.innerHTML = `<div class="info-card">Songs you play or search in Portal will appear here for quick one-tap replay.</div>`;
+        return;
+      }
+
+      list.innerHTML = "";
+      for (const t of recentTracks) {
+        const row = document.createElement("div");
+        row.className = "list-item";
+        row.innerHTML = `
+          <img src="${escapeHtml(t.art || "")}" alt="" />
+          <div class="list-info">
+            <div class="list-title">${escapeHtml(t.name)}</div>
+            <div class="list-sub">${escapeHtml(t.artist)}</div>
+          </div>
+        `;
+        row.onclick = () => playUri(null, t.uri);
+        list.appendChild(row);
       }
     }
 
@@ -2686,7 +2932,6 @@
           let tracks = [];
           let lastErr = null;
 
-          // Try clean search endpoint variants in case Spotify enforces strict limit bounds (e.g. limit=5 or default limit)
           const searchUrls = [
             `/search?q=${encodeURIComponent(q.trim())}&type=track&limit=5`,
             `/search?q=${encodeURIComponent(q.trim())}&type=track`
